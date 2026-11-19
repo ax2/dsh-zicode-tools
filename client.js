@@ -1404,6 +1404,7 @@ window.__ModuleLoader__.load({
 .zct-main-desc{margin:3px 0 0;font-size:12px;line-height:18px;color:var(--dsw-alias-label-tertiary)}
 .zct-pane{flex:1;min-height:0;overflow:auto;padding:6px 22px 22px;display:flex;flex-direction:column;gap:12px;overscroll-behavior:contain}
 .zct-tool-panel{display:flex;flex-direction:column;gap:12px}
+.zct-tool-panel[hidden]{display:none}
 .zct-valid{margin:0;color:var(--dsw-alias-state-success-primary);font-size:12px}
 .zct-foot{flex:none;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 18px;border-top:0.5px solid var(--dsw-alias-border-l1);font-size:11px;color:var(--dsw-alias-label-tertiary)}
 .zct-foot-local{display:inline-flex;align-items:center;gap:6px}
