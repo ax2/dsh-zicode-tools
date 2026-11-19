@@ -9,6 +9,13 @@ globalThis.window = {
   __ModuleLoader__: { load(spec) { captured.push(spec) } },
   dshDesktop: { keyboard: {} },
 }
+globalThis.document = {
+  activeElement: null,
+  documentElement: { lang: 'en' },
+  addEventListener() {},
+  removeEventListener() {},
+  getElementById() { return null },
+}
 
 const ReactStub = {
   createElement: (type, props, ...children) => ({ type, props: props || {}, children }),
@@ -122,24 +129,38 @@ const openOverlay = () => {
   return tree
 }
 
-let tabs = findAll(openOverlay(), (node) => node.props.role === 'tab')
+const tabs = findAll(openOverlay(), (node) => node.props.role === 'tab')
 if (tabs.length !== 8) throw new Error('expected 8 tool tabs, got ' + tabs.length)
+
+const firstTree = openOverlay()
+const dialog = findAll(firstTree, (node) => node.props.role === 'dialog')[0]
+if (dialog.props['data-shortcut-modal'] !== 'zicode-tools') throw new Error('dialog does not own shortcut modality')
+
+const panels = findAll(firstTree, (node) => node.props.className === 'zct-tool-panel')
+if (panels.length !== 8) throw new Error('expected 8 mounted tool panels, got ' + panels.length)
+if (panels.filter((panel) => panel.props.hidden === true).length !== 7) throw new Error('exactly one panel should be visible')
+
+const toolNodes = findAll(firstTree, (node) => typeof node.type === 'function' && node.props.t === t)
+if (toolNodes.length !== 8) throw new Error('expected 8 tool components, got ' + toolNodes.length)
+for (const node of toolNodes) {
+  const toolTree = node.type(node.props)
+  if (toolTree === null) throw new Error('tool rendered nothing')
+  if (findAll(toolTree, () => true).length < 5) throw new Error('tool tree suspiciously small')
+}
+
+const asciiTree = toolNodes[0].type(toolNodes[0].props)
+if (findAll(asciiTree, (node) => node.type === 'tr').length !== 129) {
+  throw new Error('expected 128 ASCII rows plus a header row')
+}
 
 for (let index = 0; index < tabs.length; index += 1) {
   findAll(openOverlay(), (node) => node.props.role === 'tab')[index].props.onClick()
-  const rendered = openOverlay()
-  const toolNode = findAll(rendered, (node) => typeof node.type === 'function' && node.props.t === t)
-  if (toolNode.length !== 1) throw new Error('tool component missing for tab ' + index)
-  const toolTree = toolNode[0].type(toolNode[0].props)
-  if (toolTree === null) throw new Error('tool rendered nothing')
-  if (findAll(toolTree, () => true).length < 5) throw new Error('tool tree suspiciously small')
-  if (index === 0 && findAll(toolTree, (node) => node.type === 'tr').length !== 129) {
-    throw new Error('expected 128 ASCII rows plus a header row')
-  }
+  const selected = findAll(openOverlay(), (node) => node.props.role === 'tab' && node.props['aria-selected'] === true)
+  if (selected.length !== 1) throw new Error('expected one selected tab at ' + index)
 }
 
 const backdrop = findAll(openOverlay(), (node) => node.props.className === 'zct-backdrop')[0]
-backdrop.props.onPointerDown({ target: backdrop, currentTarget: backdrop })
+backdrop.props.onClick({ target: backdrop, currentTarget: backdrop })
 if (overlay.component({ t }) !== null) throw new Error('backdrop click did not close the overlay')
 
 const enMeta = JSON.parse(readFileSync(new URL('locale/en.json', root), 'utf8'))

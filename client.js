@@ -19,7 +19,9 @@ window.__ModuleLoader__.load({
     const NS = 'zicode-tools'
     const DESKTOP = typeof window !== 'undefined' && window.dshDesktop !== undefined
     const MAC = typeof navigator !== 'undefined' && /Mac/i.test(navigator.platform === undefined ? '' : navigator.platform)
-    const HOTKEY = DESKTOP ? (MAC ? '⌥⇧Z' : 'Alt+Shift+Z') : (MAC ? '⌘⇧K' : 'Ctrl+Shift+K')
+    const HOTKEY = DESKTOP ? (MAC ? '⌥⇧Z' : 'Alt+Shift+Z') : (MAC ? '⌘⌥Z' : 'Ctrl+Alt+Z')
+    const HOTKEY_ARIA = DESKTOP ? 'Alt+Shift+Z' : 'Control+Alt+Z'
+    const MODAL_ID = 'zicode-tools'
 
     /* --------------------------------------------------------------- locale */
 
@@ -43,8 +45,6 @@ window.__ModuleLoader__.load({
       'common.encode': 'Encode',
       'common.decode': 'Decode',
       'common.swap': 'Use as input',
-      'common.input': 'Input',
-      'common.output': 'Output',
       'common.emptyInput': 'Type something first',
       'tool.ascii.title': 'ASCII table',
       'tool.ascii.desc': 'Look up decimal, hex, octal and binary codes for 0–127, or inspect the code points of any character.',
@@ -52,14 +52,16 @@ window.__ModuleLoader__.load({
       'ascii.char': 'Character',
       'ascii.control': 'Control',
       'ascii.printable': 'Printable',
+      'ascii.unicode': 'Unicode',
       'ascii.dec': 'DEC',
       'ascii.hex': 'HEX',
       'ascii.oct': 'OCT',
       'ascii.bin': 'BIN',
       'ascii.name': 'NAME',
       'ascii.codepoint': 'Unicode',
-      'ascii.copyHint': 'Click a row to copy its value',
+      'ascii.copyHint': 'Click a row to copy its character or escape',
       'ascii.outside': 'Outside ASCII, shown by Unicode code point.',
+      'ascii.noMatch': 'No code in 0–127 matches',
       'tool.encode.title': 'Encoding',
       'tool.encode.desc': 'Convert text between Base64, URL encoding, HTML entities, Unicode escapes and UTF-8 hex.',
       'encode.input': 'Text to convert',
@@ -104,6 +106,8 @@ window.__ModuleLoader__.load({
       'json.valid': 'Valid JSON',
       'json.invalid': 'Invalid JSON',
       'json.chars': 'chars',
+      'json.line': 'line',
+      'json.column': 'column',
       'tool.color.title': 'Color',
       'tool.color.desc': 'Convert HEX, RGB and HSL values with a live swatch.',
       'color.input': 'HEX, rgb() or hsl()',
@@ -158,8 +162,6 @@ window.__ModuleLoader__.load({
       'common.encode': '编码',
       'common.decode': '解码',
       'common.swap': '作为输入',
-      'common.input': '输入',
-      'common.output': '输出',
       'common.emptyInput': '请先输入内容',
       'tool.ascii.title': 'ASCII 码表',
       'tool.ascii.desc': '查询 0–127 的十进制、十六进制、八进制与二进制码值，也可查看任意字符的码点。',
@@ -167,14 +169,16 @@ window.__ModuleLoader__.load({
       'ascii.char': '字符',
       'ascii.control': '控制字符',
       'ascii.printable': '可打印',
+      'ascii.unicode': 'Unicode',
       'ascii.dec': '十进制',
       'ascii.hex': '十六进制',
       'ascii.oct': '八进制',
       'ascii.bin': '二进制',
       'ascii.name': '名称',
       'ascii.codepoint': '码点',
-      'ascii.copyHint': '点击行可复制该值',
+      'ascii.copyHint': '点击行复制字符或转义值',
       'ascii.outside': '不在 ASCII 范围内，按 Unicode 码点显示。',
+      'ascii.noMatch': '0–127 中没有匹配的码值',
       'tool.encode.title': '编码转换',
       'tool.encode.desc': '文本与 Base64、URL 编码、HTML 实体、Unicode 转义、UTF-8 十六进制互转。',
       'encode.input': '待转换文本',
@@ -219,6 +223,8 @@ window.__ModuleLoader__.load({
       'json.valid': 'JSON 有效',
       'json.invalid': 'JSON 无效',
       'json.chars': '字符',
+      'json.line': '行',
+      'json.column': '列',
       'tool.color.title': '颜色',
       'tool.color.desc': 'HEX、RGB、HSL 互转，带实时色块预览。',
       'color.input': 'HEX、rgb() 或 hsl()',
@@ -266,9 +272,14 @@ window.__ModuleLoader__.load({
     const useStore = (select) => useSyncExternalStore(subscribe, () => select(state))
     const setTab = (tab) => patch({ tab })
     const setFilter = (filter) => patch({ filter })
-    const openToolbox = () => patch({ open: true })
+    let returnFocus = null
+    const openToolbox = () => {
+      const active = document.activeElement
+      returnFocus = active !== null && active !== undefined && active !== document.body ? active : null
+      patch({ open: true })
+    }
     const closeToolbox = () => patch({ open: false })
-    const toggleToolbox = () => patch({ open: !state.open })
+    const toggleToolbox = () => { if (state.open) closeToolbox(); else openToolbox() }
 
     /* -------------------------------------------------------------- helpers */
 
@@ -297,7 +308,7 @@ window.__ModuleLoader__.load({
       return { copied, failed, copy }
     }
 
-    function CopyButton({ id, text, copyState, t, primary }) {
+    function CopyButton({ id, text, copyState, t, primary, label }) {
       const isCopied = copyState.copied === id
       const isFailed = copyState.failed === id
       return h('button', {
@@ -305,7 +316,7 @@ window.__ModuleLoader__.load({
         className: primary ? 'zct-btn zct-btn-primary' : 'zct-btn',
         onClick: () => { copyState.copy(id, text) },
         disabled: text === undefined || text === null || text === '',
-      }, isFailed ? t('common.copyFailed') : isCopied ? t('common.copied') : t('common.copy'))
+      }, isFailed ? t('common.copyFailed') : isCopied ? t('common.copied') : (label === undefined ? t('common.copy') : label))
     }
 
     function Btn({ children, primary, onClick, disabled, title, type }) {
@@ -477,20 +488,46 @@ window.__ModuleLoader__.load({
 
     function AsciiTool({ t }) {
       const [query, setQuery] = useState('')
+      const [focusCode, setFocusCode] = useState(0)
       const copyState = useCopy()
       const probe = useMemo(() => describeProbe(query), [query])
       const rows = useMemo(() => {
         const trimmed = query.trim()
         if (trimmed === '') return ASCII_ROWS
         const lower = trimmed.toLowerCase()
-        return ASCII_ROWS.filter(row =>
-          row.dec === trimmed
-          || row.hex.toLowerCase() === lower
-          || row.oct === trimmed
-          || row.bin === trimmed
-          || row.raw.toLowerCase() === lower
-          || row.name.toLowerCase().includes(lower))
+        if (/^\d+$/.test(trimmed)) return ASCII_ROWS.filter(row => row.dec === trimmed)
+        if (/^0x[0-9a-f]+$/i.test(trimmed)) {
+          const hex = trimmed.slice(2).toUpperCase()
+          return ASCII_ROWS.filter(row => row.hex === hex)
+        }
+        if (Array.from(trimmed).length === 1) return ASCII_ROWS.filter(row => row.raw === trimmed)
+        return ASCII_ROWS.filter(row => row.name !== row.raw && row.name.toLowerCase().startsWith(lower))
       }, [query])
+
+      const activeCode = rows.some(row => row.code === focusCode)
+        ? focusCode
+        : rows.length > 0 ? rows[0].code : -1
+
+      const moveFocus = (row) => {
+        if (row === undefined) return
+        setFocusCode(row.code)
+        window.requestAnimationFrame(() => {
+          const node = document.getElementById('zct-ascii-row-' + row.code)
+          if (node !== null) node.focus()
+        })
+      }
+
+      const onRowKeyDown = (event, row, index) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault()
+          copyState.copy('row-' + row.code, rowValue(row))
+          return
+        }
+        if (event.key === 'ArrowDown') { event.preventDefault(); moveFocus(rows[Math.min(index + 1, rows.length - 1)]) }
+        if (event.key === 'ArrowUp') { event.preventDefault(); moveFocus(rows[Math.max(index - 1, 0)]) }
+        if (event.key === 'Home') { event.preventDefault(); moveFocus(rows[0]) }
+        if (event.key === 'End') { event.preventDefault(); moveFocus(rows[rows.length - 1]) }
+      }
 
       const single = probe !== null && probe.kind === 'single' ? probe.chars[0] : ''
       const singleCode = probe !== null && probe.kind === 'single' ? probe.code : 0
@@ -516,7 +553,7 @@ window.__ModuleLoader__.load({
                 h('div', null, h('dt', null, t('ascii.oct')), h('dd', null, '0o' + singleCode.toString(8))),
                 h('div', null, h('dt', null, t('ascii.bin')), h('dd', null, singleCode.toString(2))),
                 h('div', null, h('dt', null, t('ascii.codepoint')), h('dd', null, 'U+' + singleCode.toString(16).toUpperCase().padStart(4, '0'))),
-                h('div', null, h('dt', null, t('ascii.name')), h('dd', null, describeName(singleCode))),
+                h('div', null, h('dt', null, t('ascii.name')), h('dd', null, describeName(singleCode, t))),
               ),
               h('div', { className: 'zct-card-actions' },
                 h(CopyButton, { id: 'probe-char', text: single, copyState, t })))
@@ -535,6 +572,7 @@ window.__ModuleLoader__.load({
           ? h(HintLine, null, t('ascii.outside'))
           : null,
 
+        rows.length === 0 ? h(HintLine, null, t('ascii.noMatch')) : null,
         h('div', { className: 'zct-table-wrap' },
           h('table', { className: 'zct-table' },
             h('thead', null,
@@ -545,18 +583,15 @@ window.__ModuleLoader__.load({
                 h('th', { scope: 'col' }, t('ascii.bin')),
                 h('th', { scope: 'col' }, t('ascii.char')),
                 h('th', { scope: 'col' }, t('ascii.name')))),
-            h('tbody', null, rows.map(row => h('tr', {
+            h('tbody', null, rows.map((row, index) => h('tr', {
               key: row.code,
+              id: 'zct-ascii-row-' + row.code,
               className: 'zct-row',
-              tabIndex: 0,
+              tabIndex: row.code === activeCode ? 0 : -1,
               title: t('ascii.copyHint'),
+              onFocus: () => { if (focusCode !== row.code) setFocusCode(row.code) },
               onClick: () => { copyState.copy('row-' + row.code, rowValue(row)) },
-              onKeyDown: (event) => {
-                if (event.key === 'Enter' || event.key === ' ') {
-                  event.preventDefault()
-                  copyState.copy('row-' + row.code, rowValue(row))
-                }
-              },
+              onKeyDown: (event) => { onRowKeyDown(event, row, index) },
             },
             h('td', null, row.dec),
             h('td', null, row.hex),
@@ -565,16 +600,18 @@ window.__ModuleLoader__.load({
             h('td', { className: 'zct-char' }, row.char),
             h('td', { className: 'zct-dim' }, row.name)))))),
 
-        copyState.copied !== null && h(HintLine, null, t('common.copied')),
+        copyState.copied !== null
+          ? h('p', { className: 'zct-hint-line', role: 'status' }, t('common.copied'))
+          : null,
       )
     }
 
-    function describeName(code) {
+    function describeName(code, t) {
       if (code < 32) return CONTROL_NAMES[code]
       if (code === 32) return 'SP'
       if (code === 127) return 'DEL'
-      if (code >= 33 && code < 127) return 'Printable'
-      return 'Unicode'
+      if (code >= 33 && code < 127) return t('ascii.printable')
+      return t('ascii.unicode')
     }
 
     /* -------------------------------------------------------------- encoding */
@@ -706,7 +743,7 @@ window.__ModuleLoader__.load({
             rows: 6,
             placeholder: t('encode.input'),
             spellCheck: false,
-            onChange: (event) => { setInput(event.target.value) },
+            onChange: (event) => { setInput(event.target.value); setOutput(''); setErrorMode(null) },
           })),
         h('div', { className: 'zct-actions' },
           h(Btn, { primary: true, onClick: () => { run('encode') } }, t('common.encode')),
@@ -805,7 +842,7 @@ window.__ModuleLoader__.load({
               key: index,
               className: index <= level && generated.password !== '' ? 'zct-bar zct-bar-on zct-level-' + level : 'zct-bar',
             }))),
-          h('span', { className: 'zct-strength-text' }, levelLabel + ' · ' + Math.round(bits) + ' ' + t('password.bits'))),
+          h('span', { className: 'zct-strength-text' }, t('password.strength') + ': ' + levelLabel + ' · ' + t('password.entropy') + ' ' + Math.round(bits) + ' ' + t('password.bits'))),
         h(Field, { label: t('password.length') + ': ' + length },
           h('input', {
             type: 'range',
@@ -850,17 +887,18 @@ window.__ModuleLoader__.load({
           position = offset + Number(lineColumn[2]) - 1
         }
       }
-      if (position === null || position < 0) return message
+      if (position === null || position < 0) return { message }
       const before = text.slice(0, position)
       const line = before.split('\n').length
       const column = position - before.lastIndexOf('\n')
-      return message + '  (line ' + line + ', column ' + column + ')'
+      return { message, line, column }
     }
 
     function JsonTool({ t }) {
       const [input, setInput] = useState('')
       const [output, setOutput] = useState('')
       const [error, setError] = useState('')
+      const [status, setStatus] = useState('')
       const [indent, setIndent] = useState('2')
       const [sortKeys, setSortKeys] = useState(false)
       const copyState = useCopy()
@@ -868,6 +906,7 @@ window.__ModuleLoader__.load({
       const run = (kind) => {
         if (input.trim() === '') {
           setOutput('')
+          setStatus('')
           setError(t('common.emptyInput'))
           return
         }
@@ -875,15 +914,21 @@ window.__ModuleLoader__.load({
           const parsed = JSON.parse(input)
           setError('')
           if (kind === 'validate') {
-            setOutput(t('json.valid') + ' · ' + input.length + ' ' + t('json.chars'))
+            setStatus(t('json.valid') + ' · ' + input.length + ' ' + t('json.chars'))
             return
           }
+          setStatus('')
           const value = sortKeys ? sortDeep(parsed) : parsed
           const pad = indent === 'tab' ? '\t' : Number(indent)
           setOutput(kind === 'minify' ? JSON.stringify(value) : JSON.stringify(value, null, pad))
         } catch (parseError) {
           setOutput('')
-          setError(t('json.invalid') + ': ' + describeJsonError(parseError, input))
+          setStatus('')
+          const detail = describeJsonError(parseError, input)
+          const position = detail.line === undefined
+            ? ''
+            : ' (' + t('json.line') + ' ' + detail.line + ', ' + t('json.column') + ' ' + detail.column + ')'
+          setError(t('json.invalid') + ': ' + detail.message + position)
         }
       }
 
@@ -894,13 +939,13 @@ window.__ModuleLoader__.load({
             rows: 8,
             placeholder: '{ "hello": "world" }',
             spellCheck: false,
-            onChange: (event) => { setInput(event.target.value) },
+            onChange: (event) => { setInput(event.target.value); setOutput(''); setError(''); setStatus('') },
           })),
         h('div', { className: 'zct-actions' },
           h(Btn, { primary: true, onClick: () => { run('format') } }, t('json.format')),
           h(Btn, { onClick: () => { run('minify') } }, t('json.minify')),
           h(Btn, { onClick: () => { run('validate') } }, t('json.validate')),
-          h(Btn, { onClick: () => { setInput(''); setOutput(''); setError('') } }, t('common.clear'))),
+          h(Btn, { onClick: () => { setInput(''); setOutput(''); setError(''); setStatus('') } }, t('common.clear'))),
         h('div', { className: 'zct-actions zct-actions-quiet' },
           h('span', { className: 'zct-label' }, t('json.indent')),
           h(Segmented, {
@@ -914,6 +959,7 @@ window.__ModuleLoader__.load({
           }),
           h(Switch, { checked: sortKeys, onChange: setSortKeys, label: t('json.sort') })),
         h(ErrorLine, null, error),
+        status !== '' ? h('p', { className: 'zct-valid', role: 'status' }, status) : null,
         h(Field, { label: t('json.output') },
           h(TextArea, {
             value: output,
@@ -1088,7 +1134,7 @@ window.__ModuleLoader__.load({
             }))),
         color === null ? h(ErrorLine, null, t('color.invalid')) : null,
         color !== null && outputs !== null && h('div', { className: 'zct-card' },
-          h('div', { className: 'zct-swatch', 'aria-label': t('color.preview') },
+          h('div', { className: 'zct-swatch', role: 'img', 'aria-label': t('color.preview') + ' ' + outputs.hex },
             h('div', {
               className: 'zct-swatch-fill',
               style: { background: 'rgba(' + Math.round(color.r) + ', ' + Math.round(color.g) + ', ' + Math.round(color.b) + ', ' + color.a + ')' },
@@ -1129,7 +1175,10 @@ window.__ModuleLoader__.load({
             ? { value: Math.round(diff / 3600000), unit: 'hour' }
             : { value: Math.round(diff / 86400000), unit: 'day' }
       try {
-        return new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' }).format(unit.value, unit.unit)
+        const lang = typeof document !== 'undefined' && document.documentElement.lang !== ''
+          ? document.documentElement.lang
+          : undefined
+        return new Intl.RelativeTimeFormat(lang, { numeric: 'auto' }).format(unit.value, unit.unit)
       } catch (error) {
         return String(unit.value) + ' ' + unit.unit
       }
@@ -1159,8 +1208,7 @@ window.__ModuleLoader__.load({
           h(ValueRow, { label: t('timestamp.millis'), value: String(tick), id: 'now-ms', copyState, t }),
           h(ValueRow, { label: t('timestamp.local'), value: new Date(tick).toLocaleString(), id: 'now-local', copyState, t }),
           h(ValueRow, { label: t('timestamp.utc'), value: new Date(tick).toUTCString(), id: 'now-utc', copyState, t }),
-          h(ValueRow, { label: t('timestamp.iso'), value: new Date(tick).toISOString(), id: 'now-iso', copyState, t }),
-          h(ValueRow, { label: t('timestamp.relative'), value: relativeLabel(tick, tick), id: 'now-rel', copyState, t })),
+          h(ValueRow, { label: t('timestamp.iso'), value: new Date(tick).toISOString(), id: 'now-iso', copyState, t })),
 
         h(Field, { label: t('timestamp.tsInput') },
           h('div', { className: 'zct-actions' },
@@ -1205,20 +1253,21 @@ window.__ModuleLoader__.load({
     }
 
     function UuidTool({ t }) {
-      const [count, setCount] = useState(5)
+      const [countText, setCountText] = useState('5')
       const [upper, setUpper] = useState(false)
       const [noDash, setNoDash] = useState(false)
       const [nonce, setNonce] = useState(0)
       const copyState = useCopy()
+      const count = clamp(Number(countText) || 1, 1, 50)
 
       const list = useMemo(() => {
-        const safeCount = clamp(Number(count) || 1, 1, 50)
+        const safeCount = clamp(Number(countText) || 1, 1, 50)
         return Array.from({ length: safeCount }, () => {
           let value = uuidv4()
           if (noDash) value = value.replace(/-/g, '')
           return upper ? value.toUpperCase() : value
         })
-      }, [count, upper, noDash, nonce])
+      }, [countText, upper, noDash, nonce])
 
       return h(Fragment, null,
         h('div', { className: 'zct-actions zct-actions-quiet' },
@@ -1228,13 +1277,14 @@ window.__ModuleLoader__.load({
             className: 'zct-input zct-number',
             min: 1,
             max: 50,
-            value: count,
-            onChange: (event) => { setCount(Number(event.target.value)) },
+            value: countText,
+            onChange: (event) => { setCountText(event.target.value) },
+            onBlur: () => { setCountText(String(count)) },
           }),
           h(Switch, { checked: upper, onChange: setUpper, label: t('uuid.upper') }),
           h(Switch, { checked: noDash, onChange: setNoDash, label: t('uuid.noDash') }),
           h(Btn, { primary: true, onClick: () => { setNonce(nonce + 1) } }, t('common.generate')),
-          h(CopyButton, { id: 'uuid-all', text: list.join('\n'), copyState, t })),
+          h(CopyButton, { id: 'uuid-all', text: list.join('\n'), copyState, t, label: t('uuid.copyAll') })),
         h('div', { className: 'zct-card zct-card-stack' },
           list.map((value, index) => h('div', { className: 'zct-uuid-row', key: index },
             h('span', { className: 'zct-mono zct-uuid-value' }, value),
@@ -1330,11 +1380,11 @@ window.__ModuleLoader__.load({
 .zct-dialog{display:flex;flex-direction:column;width:min(940px,100%);height:min(640px,100%);min-height:320px;overflow:hidden;border:0.5px solid var(--dsw-alias-border-l1);border-radius:16px;background:var(--dsw-alias-bg-overlay);color:var(--dsw-alias-label-primary);box-shadow:var(--dsw-elevation-prominent,0 24px 64px rgba(0,0,0,.3));font-family:inherit;font-size:13px;line-height:1.5}
 .zct-head{flex:none;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 18px;border-bottom:0.5px solid var(--dsw-alias-border-l1)}
 .zct-brand{display:flex;align-items:center;gap:10px;min-width:0}
-.zct-brand-mark{flex:none;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:9px;background:var(--dsw-alias-brand-primary);color:#fff}
+.zct-brand-mark{flex:none;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:9px;background:var(--dsw-alias-brand-primary);color:var(--dsw-alias-label-on-color,#fff)}
 .zct-brand-title{font-size:14px;font-weight:600;line-height:20px}
 .zct-brand-sub{font-size:11px;line-height:16px;color:var(--dsw-alias-label-tertiary)}
 .zct-head-right{display:flex;align-items:center;gap:10px;flex:none}
-.zct-kbd{font-family:var(--dsh-font-mono,ui-monospace,monospace);font-size:11px;padding:2px 6px;border:0.5px solid var(--dsw-alias-border-l2);border-radius:5px;color:var(--dsw-alias-label-tertiary);background:var(--dsw-alias-bg-layer-1)}
+.zct-kbd{font-family:var(--dsh-font-family-code,ui-monospace,monospace);font-size:11px;padding:2px 6px;border:0.5px solid var(--dsw-alias-border-l2);border-radius:5px;color:var(--dsw-alias-label-tertiary);background:var(--dsw-alias-bg-layer-1)}
 .zct-close{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border:none;border-radius:8px;background:transparent;color:var(--dsw-alias-label-secondary);cursor:pointer}
 .zct-close:hover{background:var(--dsw-alias-interactive-bg-hover,rgba(127,127,127,.12))}
 .zct-body{flex:1;min-height:0;display:flex}
@@ -1352,7 +1402,9 @@ window.__ModuleLoader__.load({
 .zct-main-head{flex:none;padding:16px 22px 10px}
 .zct-main-title{margin:0;font-size:15px;font-weight:600;line-height:22px}
 .zct-main-desc{margin:3px 0 0;font-size:12px;line-height:18px;color:var(--dsw-alias-label-tertiary)}
-.zct-pane{flex:1;min-height:0;overflow:auto;padding:6px 22px 22px;display:flex;flex-direction:column;gap:12px}
+.zct-pane{flex:1;min-height:0;overflow:auto;padding:6px 22px 22px;display:flex;flex-direction:column;gap:12px;overscroll-behavior:contain}
+.zct-tool-panel{display:flex;flex-direction:column;gap:12px}
+.zct-valid{margin:0;color:var(--dsw-alias-state-success-primary);font-size:12px}
 .zct-foot{flex:none;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 18px;border-top:0.5px solid var(--dsw-alias-border-l1);font-size:11px;color:var(--dsw-alias-label-tertiary)}
 .zct-foot-local{display:inline-flex;align-items:center;gap:6px}
 .zct-dot{width:6px;height:6px;border-radius:50%;background:var(--dsw-alias-state-success-primary)}
@@ -1362,15 +1414,15 @@ window.__ModuleLoader__.load({
 .zct-input,.zct-textarea{width:100%;box-sizing:border-box;border:0.5px solid var(--dsw-alias-border-l2);border-radius:8px;background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font:inherit;font-size:13px;padding:7px 10px;outline:none}
 .zct-input:focus,.zct-textarea:focus{border-color:var(--dsw-alias-brand-primary)}
 .zct-textarea{resize:vertical;min-height:96px;line-height:1.55}
-.zct-mono{font-family:var(--dsh-font-mono,ui-monospace,SFMono-Regular,Menlo,Consolas,monospace);font-size:12px}
+.zct-mono{font-family:var(--dsh-font-family-code,ui-monospace,SFMono-Regular,Menlo,Consolas,monospace);font-size:12px}
 .zct-textarea[readonly]{color:var(--dsw-alias-label-secondary)}
 .zct-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .zct-actions-quiet{gap:10px}
 .zct-btn{height:28px;padding:0 12px;border:0.5px solid var(--dsw-alias-border-l2);border-radius:7px;background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:12px;cursor:pointer}
 .zct-btn:hover:not(:disabled){background:var(--dsw-alias-interactive-bg-hover,rgba(127,127,127,.12));color:var(--dsw-alias-label-primary)}
 .zct-btn:disabled{opacity:.45;cursor:default}
-.zct-btn-primary{border-color:transparent;background:var(--dsw-alias-brand-primary);color:#fff}
-.zct-btn-primary:hover:not(:disabled){background:var(--dsw-alias-brand-primary);color:#fff;opacity:.9}
+.zct-btn-primary{border-color:transparent;background:var(--dsw-alias-brand-primary);color:var(--dsw-alias-label-on-color,#fff)}
+.zct-btn-primary:hover:not(:disabled){background:var(--dsw-alias-brand-primary);color:var(--dsw-alias-label-on-color,#fff);opacity:.9}
 .zct-chip{height:26px;padding:0 10px;border:0.5px solid var(--dsw-alias-border-l2);border-radius:999px;background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:12px;cursor:pointer}
 .zct-chip:hover{background:var(--dsw-alias-interactive-bg-hover,rgba(127,127,127,.12))}
 .zct-chip-active{border-color:var(--dsw-alias-brand-primary);color:var(--dsw-alias-brand-primary)}
@@ -1383,16 +1435,16 @@ window.__ModuleLoader__.load({
 .zct-grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 16px}
 .zct-card{display:flex;align-items:flex-start;gap:16px;padding:12px 14px;border:0.5px solid var(--dsw-alias-border-l1);border-radius:12px;background:var(--dsw-alias-bg-layer-1)}
 .zct-card-stack{flex-direction:column;align-items:stretch;gap:8px}
-.zct-glyph{flex:none;display:flex;align-items:center;justify-content:center;width:64px;height:64px;border-radius:12px;background:var(--dsw-alias-bg-overlay);border:0.5px solid var(--dsw-alias-border-l2);font-family:var(--dsh-font-mono,ui-monospace,monospace);font-size:28px;color:var(--dsw-alias-label-primary)}
+.zct-glyph{flex:none;display:flex;align-items:center;justify-content:center;width:64px;height:64px;border-radius:12px;background:var(--dsw-alias-bg-overlay);border:0.5px solid var(--dsw-alias-border-l2);font-family:var(--dsh-font-family-code,ui-monospace,monospace);font-size:28px;color:var(--dsw-alias-label-primary)}
 .zct-values{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 18px;margin:0;flex:1;min-width:0}
 .zct-values dt{font-size:10px;color:var(--dsw-alias-label-tertiary);text-transform:uppercase;letter-spacing:.05em}
-.zct-values dd{margin:2px 0 0;font-family:var(--dsh-font-mono,ui-monospace,monospace);font-size:12px;overflow:hidden;text-overflow:ellipsis}
+.zct-values dd{margin:2px 0 0;font-family:var(--dsh-font-family-code,ui-monospace,monospace);font-size:12px;overflow:hidden;text-overflow:ellipsis}
 .zct-card-actions{margin-left:auto;flex:none}
 .zct-chips{display:flex;flex-wrap:wrap;gap:6px}
-.zct-chip-glyph{font-family:var(--dsh-font-mono,ui-monospace,monospace);font-size:13px;margin-right:6px}
-.zct-chip-code{font-family:var(--dsh-font-mono,ui-monospace,monospace);font-size:11px;color:var(--dsw-alias-label-tertiary)}
+.zct-chip-glyph{font-family:var(--dsh-font-family-code,ui-monospace,monospace);font-size:13px;margin-right:6px}
+.zct-chip-code{font-family:var(--dsh-font-family-code,ui-monospace,monospace);font-size:11px;color:var(--dsw-alias-label-tertiary)}
 .zct-table-wrap{border:0.5px solid var(--dsw-alias-border-l1);border-radius:10px;overflow:auto;max-height:44vh}
-.zct-table{width:100%;border-collapse:collapse;font-family:var(--dsh-font-mono,ui-monospace,monospace);font-size:12px;font-variant-numeric:tabular-nums}
+.zct-table{width:100%;border-collapse:collapse;font-family:var(--dsh-font-family-code,ui-monospace,monospace);font-size:12px;font-variant-numeric:tabular-nums}
 .zct-table th{position:sticky;top:0;z-index:1;text-align:left;padding:6px 10px;background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-tertiary);font-weight:500;font-size:11px;border-bottom:0.5px solid var(--dsw-alias-border-l1);white-space:nowrap}
 .zct-table td{padding:3px 10px;border-bottom:0.5px solid var(--dsw-alias-border-l1);white-space:nowrap}
 .zct-table tr:last-child td{border-bottom:none}
@@ -1401,7 +1453,7 @@ window.__ModuleLoader__.load({
 .zct-char{font-size:14px;text-align:center}
 .zct-dim{color:var(--dsw-alias-label-tertiary)}
 .zct-password-card{display:flex;flex-direction:column;gap:10px;padding:12px 14px;border:0.5px solid var(--dsw-alias-border-l1);border-radius:12px;background:var(--dsw-alias-bg-layer-1)}
-.zct-password{font-family:var(--dsh-font-mono,ui-monospace,monospace);font-size:16px;line-height:1.6;word-break:break-all;color:var(--dsw-alias-label-primary)}
+.zct-password{font-family:var(--dsh-font-family-code,ui-monospace,monospace);font-size:16px;line-height:1.6;word-break:break-all;color:var(--dsw-alias-label-primary)}
 .zct-strength{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--dsw-alias-label-secondary)}
 .zct-strength-bars{display:flex;gap:3px;flex:none}
 .zct-bar{width:26px;height:5px;border-radius:2px;background:var(--dsw-alias-border-l2)}
@@ -1409,7 +1461,7 @@ window.__ModuleLoader__.load({
 .zct-bar-on.zct-level-1{background:var(--dsw-alias-state-warn-primary)}
 .zct-bar-on.zct-level-2,.zct-bar-on.zct-level-3{background:var(--dsw-alias-state-success-primary)}
 .zct-range{width:100%;accent-color:var(--dsw-alias-brand-primary)}
-.zct-code{margin:0;padding:10px 12px;border-radius:10px;background:var(--dsw-alias-bg-layer-1);border:0.5px solid var(--dsw-alias-border-l1);font-family:var(--dsh-font-mono,ui-monospace,monospace);font-size:12px;line-height:1.6;white-space:pre-wrap;word-break:break-all;color:var(--dsw-alias-label-primary)}
+.zct-code{margin:0;padding:10px 12px;border-radius:10px;background:var(--dsw-alias-bg-layer-1);border:0.5px solid var(--dsw-alias-border-l1);font-family:var(--dsh-font-family-code,ui-monospace,monospace);font-size:12px;line-height:1.6;white-space:pre-wrap;word-break:break-all;color:var(--dsw-alias-label-primary)}
 .zct-error{margin:0;color:var(--dsw-alias-state-error-primary);font-size:12px}
 .zct-hint-line{margin:0;color:var(--dsw-alias-label-tertiary);font-size:11px}
 .zct-color-line{display:flex;align-items:center;gap:10px}
@@ -1422,10 +1474,6 @@ window.__ModuleLoader__.load({
 .zct-uuid-row{display:flex;align-items:center;gap:10px}
 .zct-uuid-value{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .zct-number{width:72px;flex:none}
-.zct-footer{display:flex;align-items:center;flex:none;overflow:hidden;cursor:pointer}
-.zct-footer-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.zct-pane::-webkit-scrollbar,.zct-rail::-webkit-scrollbar,.zct-table-wrap::-webkit-scrollbar{width:10px;height:10px}
-.zct-pane::-webkit-scrollbar-thumb,.zct-rail::-webkit-scrollbar-thumb,.zct-table-wrap::-webkit-scrollbar-thumb{background:var(--dsw-alias-border-l2);border-radius:8px;border:3px solid transparent;background-clip:content-box}
 @media (max-width:720px){
 .zct-backdrop{padding:12px}
 .zct-body{flex-direction:column}
@@ -1449,7 +1497,7 @@ window.__ModuleLoader__.load({
         type: 'button',
         className: 'zct-footer',
         'aria-label': label,
-        'aria-keyshortcuts': HOTKEY,
+        'aria-keyshortcuts': HOTKEY_ARIA,
         'aria-haspopup': 'dialog',
         'aria-expanded': open,
         title: t('action.title'),
@@ -1474,10 +1522,21 @@ window.__ModuleLoader__.load({
           fontSize: '14px',
           lineHeight: '20px',
           cursor: 'pointer',
+          flex: 'none',
+          overflow: 'hidden',
         },
       },
       h(ToolboxIcon, { size: 18 }),
-      wide ? h('span', { className: 'zct-footer-label' }, label) : null)
+      wide
+        ? h('span', {
+          style: {
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            minWidth: '0',
+          },
+        }, label)
+        : null)
     }
 
     function ToolboxOverlay(props) {
@@ -1486,12 +1545,17 @@ window.__ModuleLoader__.load({
       const filter = useStore((snapshot) => snapshot.filter)
       const t = typeof props.t === 'function' ? props.t : identity
       const dialogRef = useRef(null)
-      const previousFocus = useRef(null)
+      const searchRef = useRef(null)
 
       useEffect(() => {
         if (!open) return undefined
-        previousFocus.current = document.activeElement
+        const previous = returnFocus
+        const node = dialogRef.current
+        const frame = window.requestAnimationFrame(() => {
+          if (searchRef.current !== null) searchRef.current.focus()
+        })
         const onKeyDown = (event) => {
+          if (node === null || !node.contains(document.activeElement)) return
           if (event.key === 'Escape') {
             event.preventDefault()
             event.stopPropagation()
@@ -1499,8 +1563,6 @@ window.__ModuleLoader__.load({
             return
           }
           if (event.key !== 'Tab') return
-          const node = dialogRef.current
-          if (node === null) return
           const focusable = Array.from(node.querySelectorAll('button, input, textarea, select, a[href], [tabindex]:not([tabindex="-1"])'))
             .filter(element => !element.disabled && element.offsetParent !== null)
           if (focusable.length === 0) return
@@ -1516,28 +1578,50 @@ window.__ModuleLoader__.load({
         }
         document.addEventListener('keydown', onKeyDown, true)
         return () => {
+          window.cancelAnimationFrame(frame)
           document.removeEventListener('keydown', onKeyDown, true)
-          const previous = previousFocus.current
-          if (previous !== null && previous !== undefined && typeof previous.focus === 'function') previous.focus()
+          if (previous !== null && previous !== undefined && typeof previous.focus === 'function' && previous.isConnected !== false) previous.focus()
+          returnFocus = null
         }
       }, [open])
 
       if (!open) return null
 
       const current = TOOLS.find(tool => tool.id === tab) || TOOLS[0]
-      const Component = current.Component
       const query = filter.trim().toLowerCase()
       const visible = TOOLS.filter(tool => query === ''
         || t(tool.title).toLowerCase().includes(query)
         || t(tool.desc).toLowerCase().includes(query)
         || tool.id.includes(query))
 
+      const selectTab = (tool) => {
+        setTab(tool.id)
+        window.requestAnimationFrame(() => {
+          const node = document.getElementById('zct-tab-' + tool.id)
+          if (node !== null) node.focus()
+        })
+      }
+
+      const onTabKeyDown = (event, tool) => {
+        const index = visible.findIndex(item => item.id === tool.id)
+        if (index === -1) return
+        let next = null
+        if (event.key === 'ArrowDown' || event.key === 'ArrowRight') next = visible[(index + 1) % visible.length]
+        else if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') next = visible[(index - 1 + visible.length) % visible.length]
+        else if (event.key === 'Home') next = visible[0]
+        else if (event.key === 'End') next = visible[visible.length - 1]
+        if (next !== null) {
+          event.preventDefault()
+          selectTab(next)
+        }
+      }
+
       return h(Fragment, null,
         h('style', { key: 'zct-style' }, CSS),
         h('div', {
           key: 'zct-backdrop',
           className: 'zct-backdrop',
-          onPointerDown: (event) => { if (event.target === event.currentTarget) closeToolbox() },
+          onClick: (event) => { if (event.target === event.currentTarget) closeToolbox() },
         },
         h('div', {
           ref: dialogRef,
@@ -1545,6 +1629,7 @@ window.__ModuleLoader__.load({
           role: 'dialog',
           'aria-modal': 'true',
           'aria-label': t('panel.title'),
+          'data-shortcut-modal': MODAL_ID,
         },
         h('header', { className: 'zct-head' },
           h('div', { className: 'zct-brand' },
@@ -1568,12 +1653,12 @@ window.__ModuleLoader__.load({
         h('div', { className: 'zct-body' },
           h('aside', { className: 'zct-rail' },
             h('input', {
+              ref: searchRef,
               className: 'zct-input zct-rail-search',
               value: filter,
               placeholder: t('panel.search'),
               'aria-label': t('panel.search'),
               spellCheck: false,
-              autoFocus: true,
               onChange: (event) => { setFilter(event.target.value) },
             }),
             h('div', { className: 'zct-rail-label' }, t('panel.tools')),
@@ -1582,10 +1667,14 @@ window.__ModuleLoader__.load({
                 key: tool.id,
                 type: 'button',
                 role: 'tab',
+                id: 'zct-tab-' + tool.id,
                 'aria-selected': tool.id === current.id,
+                'aria-controls': 'zct-panel-' + tool.id,
+                tabIndex: tool.id === current.id ? 0 : -1,
                 className: tool.id === current.id ? 'zct-tool-item zct-tool-item-active' : 'zct-tool-item',
                 title: t(tool.title),
                 onClick: () => { setTab(tool.id) },
+                onKeyDown: (event) => { onTabKeyDown(event, tool) },
               },
               h('span', { className: 'zct-tool-icon' }, h(tool.icon)),
               h('span', { className: 'zct-tool-name' }, t(tool.title))))),
@@ -1595,7 +1684,15 @@ window.__ModuleLoader__.load({
             h('div', { className: 'zct-main-head' },
               h('h2', { className: 'zct-main-title' }, t(current.title)),
               h('p', { className: 'zct-main-desc' }, t(current.desc))),
-            h('div', { className: 'zct-pane' }, h(Component, { t })))),
+            h('div', { className: 'zct-pane' },
+              TOOLS.map(tool => h('div', {
+                key: tool.id,
+                className: 'zct-tool-panel',
+                role: 'tabpanel',
+                id: 'zct-panel-' + tool.id,
+                'aria-labelledby': 'zct-tab-' + tool.id,
+                hidden: tool.id !== current.id,
+              }, h(tool.Component, { t })))))),
 
         h('footer', { className: 'zct-foot' },
           h('span', null, h('span', { className: 'zct-kbd' }, 'Esc'), ' ' + t('panel.esc')),
@@ -1609,24 +1706,31 @@ window.__ModuleLoader__.load({
       ctx.effect(() => ctx.locale.register(NS, 'en', EN), 'zicode-tools: en dictionary')
       ctx.effect(() => ctx.locale.register(NS, 'zh', ZH), 'zicode-tools: zh dictionary')
 
-      ctx.effect(() => ctx.shortcuts.register({
-        id: 'zicode-tools.open',
-        label: () => translate('shortcut.label'),
-        aliases: ['toolbox', 'tools', '字码', '工具'],
-        defaults: {
-          'desktop:macos': { code: 'KeyZ', modifiers: ['alt', 'shift'] },
-          'desktop:windows': { code: 'KeyZ', modifiers: ['alt', 'shift'] },
-          'desktop:linux': { code: 'KeyZ', modifiers: ['alt', 'shift'] },
-          'web:macos': { code: 'KeyK', modifiers: ['primary', 'shift'] },
-          'web:windows': { code: 'KeyK', modifiers: ['primary', 'shift'] },
-        },
-        regions: ['page', 'editable'],
-        modals: [],
-        resolve: () => ({
-          status: 'handled',
-          run: () => { toggleToolbox() },
-        }),
-      }), 'zicode-tools: shortcut')
+      ctx.effect(() => {
+        try {
+          return ctx.shortcuts.register({
+            id: 'zicode-tools.open',
+            label: () => translate('shortcut.label'),
+            aliases: ['toolbox', 'tools', '字码', '工具'],
+            defaults: {
+              'desktop:macos': { code: 'KeyZ', modifiers: ['alt', 'shift'] },
+              'desktop:windows': { code: 'KeyZ', modifiers: ['alt', 'shift'] },
+              'desktop:linux': { code: 'KeyZ', modifiers: ['alt', 'shift'] },
+              'web:macos': { code: 'KeyZ', modifiers: ['primary', 'alt'] },
+              'web:windows': { code: 'KeyZ', modifiers: ['primary', 'alt'] },
+            },
+            regions: ['page', 'editable'],
+            modals: [MODAL_ID],
+            resolve: () => ({
+              status: 'handled',
+              run: () => { toggleToolbox() },
+            }),
+          })
+        } catch (error) {
+          console.error('[zicode-tools] shortcut registration failed:', error)
+          return () => {}
+        }
+      }, 'zicode-tools: shortcut')
 
       ctx.slots.inject('sidebar.footer.action', () => ctx.slots.register({
         name: 'sidebar.footer.action',

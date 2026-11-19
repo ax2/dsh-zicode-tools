@@ -9,7 +9,7 @@
 | 入口 | 位置 | 说明 |
 | --- | --- | --- |
 | 侧栏按钮 | 左侧栏底部、**设置**按钮正上方 | 常驻，不需要打开会话；侧栏收起时显示为图标 |
-| 快捷键 | 默认 `Alt+Shift+Z`（Web 版默认 `Ctrl+Shift+K`） | 在 **设置 → 快捷键** 里可改；`Esc` 或点击遮罩关闭 |
+| 快捷键 | 默认 `Alt+Shift+Z`（Web 版默认 `Ctrl+Alt+Z`） | 在 **设置 → 快捷键** 里可改；`Esc` 或点击遮罩关闭 |
 
 打开后是一个居中浮层：左侧 8 个工具，右侧是当前工具面板。工具面板顶部有搜索框，可按名称或描述过滤。
 
@@ -73,6 +73,7 @@ dsh-zicode-tools/
 - ASCII 表固定 0–127；128 以上字符在查询卡里按 Unicode 码点显示。
 - HTML 实体解码覆盖常用命名实体与全部数字实体，不覆盖 HTML5 的完整实体表。
 - 复制依赖 `navigator.clipboard`（安全上下文）。
+- 部分平台把折叠侧栏收成 0 宽时，侧栏底部按钮不可见；此时用快捷键打开。
 
 ## 开发自检
 
@@ -85,7 +86,7 @@ npm test        # 集成冒烟测试：加载模块、执行 apply、渲染 8 �
 
 ## English
 
-A local-only developer toolbox for DeepSeek Harness. The launcher sits at the sidebar foot, directly above Settings, and the same panel opens with `Alt+Shift+Z` (desktop) or `Ctrl+Shift+K` (web); both are editable under Settings → Shortcuts. It ships an ASCII table, Base64/URL/HTML/Unicode/hex conversion, a crypto-random password generator, JSON formatting and validation, HEX/RGB/HSL conversion, timestamps, UUID batches, and SHA digests. Everything runs in the page; nothing is sent anywhere or read from the session.
+A local-only developer toolbox for DeepSeek Harness. The launcher sits at the sidebar foot, directly above Settings, and the same panel opens with `Alt+Shift+Z` (desktop) or `Ctrl+Alt+Z` (web); both are editable under Settings → Shortcuts. It ships an ASCII table, Base64/URL/HTML/Unicode/hex conversion, a crypto-random password generator, JSON formatting and validation, HEX/RGB/HSL conversion, timestamps, UUID batches, and SHA digests. Everything runs in the page; nothing is sent anywhere or read from the session.
 
 ## License
 
