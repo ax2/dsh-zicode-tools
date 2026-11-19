@@ -1,0 +1,7 @@
+{
+  "meta": {
+    "title": "Zicode tools",
+    "description": "Developer utilities at the sidebar foot, just above Settings, or press Alt+Shift+Z: ASCII table and code lookup, Base64/URL/HTML/Unicode/hex conversion, password generator, JSON formatting and validation, color conversion, timestamps, UUID batches and SHA hashes. Everything is computed locally in the browser; nothing is sent over the network or read from the session.",
+    "detail": "docs/DETAIL.md"
+  }
+}

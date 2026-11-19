@@ -1,0 +1,64 @@
+{
+  "name": "dsh-zicode-tools",
+  "version": "0.1.0",
+  "description": "Offline developer toolbox for DeepSeek Harness: ASCII table, encoding conversion, password generator, JSON formatter, color converter, timestamp, UUID and SHA hash.",
+  "type": "module",
+  "license": "MIT",
+  "author": "ax2",
+  "homepage": "https://github.com/ax2/dsh-zicode-tools#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ax2/dsh-zicode-tools.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ax2/dsh-zicode-tools/issues"
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "cordis",
+    "developer-tools",
+    "toolbox",
+    "ascii",
+    "base64",
+    "json",
+    "password",
+    "color"
+  ],
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "scripts": {
+    "check": "node --check index.js && node --check client.js",
+    "test": "node test/smoke.mjs"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "docs",
+    "icon.svg",
+    "README.md",
+    "LICENSE"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-shortcuts",
+        "@deepseek-ai/dsh-client-ui-layout",
+        "@deepseek-ai/dsh-client-ui-sidebar"
+      ]
+    }
+  }
+}

@@ -1,0 +1,23 @@
+name: check
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Syntax check
+        run: |
+          node --check index.js
+          node --check client.js
+      - name: Manifest and artwork check
+        run: |
+          node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('package.json','utf8'));if(!p.dsh?.bundle?.patch||!p.dsh?.client)throw new Error('dsh manifest missing');if(!fs.existsSync('icon.svg'))throw new Error('icon missing');console.log(p.name+' '+p.version)"
+      - name: Integration smoke test
+        run: node test/smoke.mjs
