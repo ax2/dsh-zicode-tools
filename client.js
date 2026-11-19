@@ -27,8 +27,9 @@ window.__ModuleLoader__.load({
     const PREFS_KEY = 'dsh-zicode-tools:prefs'
     const BRAND_HOME = 'https://www.zicode.com'
     const BRAND_SOFTWARE = 'https://www.zicode.com/software/'
+    const BRAND_GITHUB = 'https://github.com/ax2/dsh-zicode-tools'
     const BRAND_SITE_LABEL = 'www.zicode.com'
-    const VERSION = '0.3.2'
+    const VERSION = '0.4.0'
 
     /* --------------------------------------------------------------- locale */
 
@@ -50,6 +51,7 @@ window.__ModuleLoader__.load({
       'menu.all': 'All tools…',
       'menu.settings': 'Menu settings…',
       'menu.about': 'About zicode…',
+      'menu.github': 'GitHub / Star…',
       'footer.site': 'www.zicode.com',
       'footer.wechat': 'WeChat',
       'footer.qrHint': 'Show the WeChat QR code',
@@ -62,6 +64,9 @@ window.__ModuleLoader__.load({
       'about.software': 'Software',
       'about.note': 'The software entry and DSH plugin landing page will go live on zicode.com.',
       'about.copyLink': 'Copy link',
+      'about.github': 'GitHub',
+      'about.star': 'Star this project',
+      'about.starNote': 'If this toolbox helps you, a star on GitHub is appreciated.',
       'settings.title': 'Menu settings',
       'settings.desc': 'Choose the tools in the sidebar menu, how many show, and their order.',
       'settings.sort': 'Order',
@@ -113,6 +118,7 @@ window.__ModuleLoader__.load({
       'encode.invalidHex': 'Hex must be byte pairs such as 41 42',
       'encode.invalidUnicode': 'Invalid Unicode escape',
       'encode.invalidHtml': 'Invalid HTML entity input',
+      'encode.urlSafe': 'URL-safe (no padding)',
       'tool.password.title': 'Password',
       'tool.password.desc': 'Cryptographically random passwords with a live entropy estimate.',
       'password.length': 'Length',
@@ -202,6 +208,7 @@ window.__ModuleLoader__.load({
       'cron.month': 'Month',
       'cron.weekday': 'Weekday',
       'cron.empty': 'Press “Next 5 runs” to compute upcoming times.',
+      'cron.localHint': 'Times use the local time zone.',
       'tool.url.title': 'URL parser',
       'tool.url.desc': 'Break a URL into its parts and decoded query parameters.',
       'url.input': 'URL',
@@ -245,12 +252,16 @@ window.__ModuleLoader__.load({
       'jwt.nbf': 'Not before (nbf)',
       'jwt.note': 'Decoded only; the signature is not verified.',
       'jwt.unsigned': 'no signature section',
+      'jwt.expired': 'Expired',
+      'jwt.active': 'Not expired',
       'tool.diff.title': 'Text diff',
       'tool.diff.desc': 'Compare two texts line by line and copy the unified result.',
       'diff.left': 'Original',
       'diff.right': 'Changed',
       'diff.tooLarge': 'Too many lines to compare (about 1000 × 1000 max)',
       'diff.identical': 'No line differences',
+      'diff.ignoreCase': 'Ignore case',
+      'diff.ignoreWhitespace': 'Ignore whitespace',
     }
 
     const ZH = {
@@ -271,6 +282,7 @@ window.__ModuleLoader__.load({
       'menu.all': '全部工具…',
       'menu.settings': '菜单设置…',
       'menu.about': '关于 zicode…',
+      'menu.github': 'GitHub / Star…',
       'footer.site': 'www.zicode.com',
       'footer.wechat': '公众号',
       'footer.qrHint': '查看公众号二维码',
@@ -283,6 +295,9 @@ window.__ModuleLoader__.load({
       'about.software': '软件模块',
       'about.note': '软件模块入口与 DSH 插件落地页将在这里上线。',
       'about.copyLink': '复制链接',
+      'about.github': 'GitHub',
+      'about.star': 'Star 这个项目',
+      'about.starNote': '如果这个工具箱帮到你，欢迎在 GitHub 点个 Star。',
       'settings.title': '菜单设置',
       'settings.desc': '决定侧栏二级菜单里显示哪些工具、显示几个、按什么顺序。',
       'settings.sort': '排序方式',
@@ -334,6 +349,7 @@ window.__ModuleLoader__.load({
       'encode.invalidHex': '十六进制需为两位一组，如 41 42',
       'encode.invalidUnicode': 'Unicode 转义无效',
       'encode.invalidHtml': 'HTML 实体输入无效',
+      'encode.urlSafe': 'URL-safe（去掉 padding）',
       'tool.password.title': '密码生成',
       'tool.password.desc': '基于密码学随机数生成密码，并实时估算熵值。',
       'password.length': '长度',
@@ -423,6 +439,7 @@ window.__ModuleLoader__.load({
       'cron.month': '月',
       'cron.weekday': '星期',
       'cron.empty': '点击「接下来 5 次」计算运行时间。',
+      'cron.localHint': '时间按本地时区计算。',
       'tool.url.title': 'URL 解析',
       'tool.url.desc': '拆分 URL 各部分，并解码查询参数。',
       'url.input': 'URL',
@@ -466,12 +483,16 @@ window.__ModuleLoader__.load({
       'jwt.nbf': '生效时间 (nbf)',
       'jwt.note': '仅解码，不校验签名。',
       'jwt.unsigned': '没有签名段',
+      'jwt.expired': '已过期',
+      'jwt.active': '未过期',
       'tool.diff.title': '文本对比',
       'tool.diff.desc': '逐行比较两段文本，并复制统一格式结果。',
       'diff.left': '原文',
       'diff.right': '新文',
       'diff.tooLarge': '行数过多，最多比较约 1000 × 1000 行',
       'diff.identical': '没有行差异',
+      'diff.ignoreCase': '忽略大小写',
+      'diff.ignoreWhitespace': '忽略空白',
     }
 
     /* ---------------------------------------------------------------- store */
@@ -514,6 +535,14 @@ window.__ModuleLoader__.load({
         return Promise.resolve(false)
       }
       return navigator.clipboard.writeText(String(text)).then(() => true, () => false)
+    }
+
+    function openExternal(url) {
+      try {
+        window.open(url, '_blank', 'noopener,noreferrer')
+      } catch (error) {
+        /* the host may block new windows; the URL stays visible and copyable */
+      }
     }
 
     function useCopy() {
@@ -717,6 +746,16 @@ window.__ModuleLoader__.load({
       h('rect', { key: 'c', x: 4, y: 13.5, width: 6.5, height: 6.5, rx: 1.5 }),
       h('rect', { key: 'd', x: 13.5, y: 13.5, width: 6.5, height: 6.5, rx: 1.5 }),
     ])
+    const GitHubIcon = () => icon([
+      h('circle', { key: 'a', cx: 6.5, cy: 6, r: 2.2 }),
+      h('circle', { key: 'b', cx: 6.5, cy: 18, r: 2.2 }),
+      h('circle', { key: 'c', cx: 17.5, cy: 8, r: 2.2 }),
+      h('path', { key: 'd', d: 'M6.5 8.2v7.6' }),
+      h('path', { key: 'e', d: 'M17.5 10.2c0 3.6-2.9 4.6-6 4.8' }),
+    ])
+    const StarIcon = () => icon([
+      h('path', { key: 's', d: 'm12 3.7 2.6 5.2 5.8.9-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.2-4.1 5.8-.9z' }),
+    ])
 
     /* ----------------------------------------------------------------- ascii */
 
@@ -911,7 +950,8 @@ window.__ModuleLoader__.load({
 
     function base64ToUtf8(text) {
       const normalized = text.replace(/\s+/g, '').replace(/-/g, '+').replace(/_/g, '/')
-      const binary = atob(normalized)
+      const padded = normalized + '='.repeat((4 - normalized.length % 4) % 4)
+      const binary = atob(padded)
       const bytes = new Uint8Array(binary.length)
       for (let index = 0; index < binary.length; index += 1) bytes[index] = binary.charCodeAt(index)
       return new TextDecoder('utf-8', { fatal: true }).decode(bytes)
@@ -968,10 +1008,16 @@ window.__ModuleLoader__.load({
       return new TextDecoder('utf-8', { fatal: true }).decode(bytes)
     }
 
-    function convertEncoding(mode, direction, text) {
+    function convertEncoding(mode, direction, text, urlSafe) {
       if (text === '') return { error: 'empty' }
       try {
-        if (mode === 'base64') return { value: direction === 'encode' ? utf8ToBase64(text) : base64ToUtf8(text) }
+        if (mode === 'base64') {
+          if (direction === 'encode') {
+            const encoded = utf8ToBase64(text)
+            return { value: urlSafe ? encoded.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '') : encoded }
+          }
+          return { value: base64ToUtf8(text) }
+        }
         if (mode === 'url') {
           return { value: direction === 'encode' ? encodeURIComponent(text) : decodeURIComponent(text) }
         }
@@ -989,10 +1035,11 @@ window.__ModuleLoader__.load({
       const [input, setInput] = useState('')
       const [output, setOutput] = useState('')
       const [errorMode, setErrorMode] = useState(null)
+      const [urlSafe, setUrlSafe] = useState(false)
       const copyState = useCopy()
 
       const run = (direction) => {
-        const result = convertEncoding(mode, direction, input)
+        const result = convertEncoding(mode, direction, input, urlSafe)
         if (result.error !== undefined) {
           setOutput('')
           setErrorMode(result.error === 'empty' ? 'empty' : mode)
@@ -1012,6 +1059,13 @@ window.__ModuleLoader__.load({
           value: mode,
           onChange: (next) => { setMode(next); setOutput(''); setErrorMode(null) },
         }),
+        mode === 'base64'
+          ? h(Switch, {
+            checked: urlSafe,
+            onChange: (next) => { setUrlSafe(next); setOutput(''); setErrorMode(null) },
+            label: t('encode.urlSafe'),
+          })
+          : null,
         h(Field, { label: t('encode.input') },
           h(TextArea, {
             value: input,
@@ -1826,7 +1880,9 @@ window.__ModuleLoader__.load({
       const [runs, setRuns] = useState([])
       const parsed = useMemo(() => parseCron(expression), [expression])
       const copyState = useCopy()
-      const field = (values) => values.length > 12 ? values.slice(0, 12).join(', ') + ' …' : values.join(', ')
+      const field = (values, full) => values.length === full
+        ? '*'
+        : values.length > 12 ? values.slice(0, 12).join(', ') + ' …' : values.join(', ')
 
       return h(Fragment, null,
         h(Field, { label: t('cron.expression') },
@@ -1846,11 +1902,11 @@ window.__ModuleLoader__.load({
             h(CopyButton, { id: 'cron-expression', text: expression, copyState, t }))),
         parsed.error === true ? h(ErrorLine, null, t('cron.invalid')) : null,
         parsed.error === undefined && h('div', { className: 'zct-card zct-card-stack' },
-          h(ValueRow, { label: t('cron.minute'), value: field(parsed.minute), id: 'cron-minute', copyState, t }),
-          h(ValueRow, { label: t('cron.hour'), value: field(parsed.hour), id: 'cron-hour', copyState, t }),
-          h(ValueRow, { label: t('cron.day'), value: field(parsed.day), id: 'cron-day', copyState, t }),
-          h(ValueRow, { label: t('cron.month'), value: field(parsed.month), id: 'cron-month', copyState, t }),
-          h(ValueRow, { label: t('cron.weekday'), value: field(parsed.weekday), id: 'cron-weekday', copyState, t })),
+          h(ValueRow, { label: t('cron.minute'), value: field(parsed.minute, 60), id: 'cron-minute', copyState, t }),
+          h(ValueRow, { label: t('cron.hour'), value: field(parsed.hour, 24), id: 'cron-hour', copyState, t }),
+          h(ValueRow, { label: t('cron.day'), value: field(parsed.day, 31), id: 'cron-day', copyState, t }),
+          h(ValueRow, { label: t('cron.month'), value: field(parsed.month, 12), id: 'cron-month', copyState, t }),
+          h(ValueRow, { label: t('cron.weekday'), value: field(parsed.weekday, 7), id: 'cron-weekday', copyState, t })),
         runs.length > 0 ? h('div', { className: 'zct-card zct-card-stack' },
           runs.map((run, index) => h(ValueRow, {
             key: index,
@@ -1862,7 +1918,8 @@ window.__ModuleLoader__.load({
           }))) : null,
         parsed.error === undefined && runs.length === 0
           ? h(HintLine, null, t('cron.empty'))
-          : null)
+          : null,
+        parsed.error === undefined ? h(HintLine, null, t('cron.localHint')) : null)
     }
 
     /* ------------------------------------------------------------------ url */
@@ -2009,6 +2066,8 @@ window.__ModuleLoader__.load({
 
       const claims = parsed !== null && parsed.error === undefined
         && parsed.claims !== null && typeof parsed.claims === 'object' ? parsed.claims : {}
+      const exp = typeof claims.exp === 'number' ? claims.exp : null
+      const expired = exp !== null && exp * 1000 <= Date.now()
       const timeRow = (key, label) => {
         const value = claims[key]
         if (typeof value !== 'number') return null
@@ -2042,6 +2101,10 @@ window.__ModuleLoader__.load({
               timeRow('exp', t('jwt.exp')),
               timeRow('iat', t('jwt.iat')),
               timeRow('nbf', t('jwt.nbf'))),
+            exp !== null
+              ? h('p', { className: expired ? 'zct-error' : 'zct-valid' },
+                (expired ? t('jwt.expired') : t('jwt.active')) + ' · ' + relativeLabel(exp * 1000, Date.now()))
+              : null,
             h(HintLine, null, t('jwt.note') + (parsed.signed ? '' : ' · ' + t('jwt.unsigned'))),
             h('div', { className: 'zct-actions' },
               h(CopyButton, { id: 'jwt-header', text: parsed.header, copyState, t }),
@@ -2051,21 +2114,29 @@ window.__ModuleLoader__.load({
 
     /* ----------------------------------------------------------------- diff */
 
-    function diffLines(left, right) {
-      const a = left.split('\n')
-      const b = right.split('\n')
+    function diffLines(left, right, options) {
+      const a = left.replace(/\r\n?/g, '\n').split('\n')
+      const b = right.replace(/\r\n?/g, '\n').split('\n')
+      const normalize = (line) => {
+        let value = line
+        if (options.ignoreWhitespace) value = value.trim().replace(/\s+/g, ' ')
+        if (options.ignoreCase) value = value.toLowerCase()
+        return value
+      }
+      const na = a.map(normalize)
+      const nb = b.map(normalize)
       if (a.length * b.length > 1000000) return null
       const table = Array.from({ length: a.length + 1 }, () => new Uint16Array(b.length + 1))
       for (let i = a.length - 1; i >= 0; i -= 1) {
         for (let j = b.length - 1; j >= 0; j -= 1) {
-          table[i][j] = a[i] === b[j] ? table[i + 1][j + 1] + 1 : Math.max(table[i + 1][j], table[i][j + 1])
+          table[i][j] = na[i] === nb[j] ? table[i + 1][j + 1] + 1 : Math.max(table[i + 1][j], table[i][j + 1])
         }
       }
       const ops = []
       let i = 0
       let j = 0
       while (i < a.length && j < b.length) {
-        if (a[i] === b[j]) { ops.push({ type: 'same', text: a[i] }); i += 1; j += 1 }
+        if (na[i] === nb[j]) { ops.push({ type: 'same', text: a[i] }); i += 1; j += 1 }
         else if (table[i + 1][j] >= table[i][j + 1]) { ops.push({ type: 'del', text: a[i] }); i += 1 }
         else { ops.push({ type: 'add', text: b[j] }); j += 1 }
       }
@@ -2077,8 +2148,13 @@ window.__ModuleLoader__.load({
     function DiffTool({ t }) {
       const [left, setLeft] = useState('')
       const [right, setRight] = useState('')
+      const [ignoreCase, setIgnoreCase] = useState(false)
+      const [ignoreWhitespace, setIgnoreWhitespace] = useState(false)
       const copyState = useCopy()
-      const ops = useMemo(() => (left === '' && right === '') ? [] : diffLines(left, right), [left, right])
+      const ops = useMemo(
+        () => (left === '' && right === '') ? [] : diffLines(left, right, { ignoreCase, ignoreWhitespace }),
+        [left, right, ignoreCase, ignoreWhitespace],
+      )
       const added = ops === null ? 0 : ops.filter(op => op.type === 'add').length
       const removed = ops === null ? 0 : ops.filter(op => op.type === 'del').length
       const text = ops === null ? '' : ops.map(op => (op.type === 'add' ? '+ ' : op.type === 'del' ? '- ' : '  ') + op.text).join('\n')
@@ -2101,6 +2177,17 @@ window.__ModuleLoader__.load({
               placeholder: t('diff.right'),
               onChange: (event) => { setRight(event.target.value) },
             }))),
+        h('div', { className: 'zct-actions zct-actions-quiet' },
+          h(Switch, {
+            checked: ignoreWhitespace,
+            onChange: setIgnoreWhitespace,
+            label: t('diff.ignoreWhitespace'),
+          }),
+          h(Switch, {
+            checked: ignoreCase,
+            onChange: setIgnoreCase,
+            label: t('diff.ignoreCase'),
+          })),
         ops === null ? h(ErrorLine, null, t('diff.tooLarge')) : null,
         ops !== null && (left !== '' || right !== '') && added === 0 && removed === 0
           ? h(HintLine, null, t('diff.identical'))
@@ -2273,7 +2360,7 @@ window.__ModuleLoader__.load({
       const copyState = useCopy()
       const openSite = (event, url) => {
         event.preventDefault()
-        window.open(url, '_blank', 'noopener,noreferrer')
+        openExternal(url)
       }
       return h('div', { className: 'zct-about' },
         h('div', { className: 'zct-about-head' },
@@ -2300,7 +2387,27 @@ window.__ModuleLoader__.load({
                 rel: 'noreferrer noopener',
                 onClick: (event) => { openSite(event, BRAND_SOFTWARE) },
               }, t('about.software'))),
-            h('p', { className: 'zct-hint-line' }, t('about.note'))),
+            h('p', { className: 'zct-hint-line' }, t('about.note')),
+
+            h('div', { className: 'zct-about-sep' }),
+            h('span', { className: 'zct-label' }, t('about.github')),
+            h('a', {
+              className: 'zct-link zct-about-repo',
+              href: BRAND_GITHUB,
+              target: '_blank',
+              rel: 'noreferrer noopener',
+              onClick: (event) => { openSite(event, BRAND_GITHUB) },
+            }, 'ax2/dsh-zicode-tools'),
+            h('div', { className: 'zct-actions' },
+              h('a', {
+                className: 'zct-btn zct-btn-primary',
+                href: BRAND_GITHUB,
+                target: '_blank',
+                rel: 'noreferrer noopener',
+                onClick: (event) => { openSite(event, BRAND_GITHUB) },
+              }, h(StarIcon), t('about.star')),
+              h(CopyButton, { id: 'about-github', text: BRAND_GITHUB, copyState, t, label: t('about.copyLink') })),
+            h('p', { className: 'zct-hint-line' }, t('about.starNote'))),
           h('figure', { className: 'zct-about-qr' },
             h('img', {
               src: WECHAT_QR,
@@ -2377,7 +2484,7 @@ window.__ModuleLoader__.load({
 .zct-textarea[readonly]{color:var(--dsw-alias-label-secondary)}
 .zct-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .zct-actions-quiet{gap:10px}
-.zct-btn{display:inline-flex;align-items:center;justify-content:center;height:28px;padding:0 12px;border:0.5px solid var(--dsw-alias-border-l2);border-radius:7px;background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:12px;text-decoration:none;cursor:pointer}
+.zct-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:28px;padding:0 12px;border:0.5px solid var(--dsw-alias-border-l2);border-radius:7px;background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:12px;text-decoration:none;cursor:pointer}
 .zct-btn:hover:not(:disabled){background:var(--dsw-alias-interactive-bg-hover,rgba(127,127,127,.12));color:var(--dsw-alias-label-primary)}
 .zct-btn:disabled{opacity:.45;cursor:default}
 .zct-btn-primary{border-color:transparent;background:var(--dsw-alias-button-primary-fill,var(--dsw-alias-brand-primary));color:var(--dsw-alias-label-primary-foreground,var(--dsw-alias-label-primary-inverted,#fff))}
@@ -2403,6 +2510,8 @@ window.__ModuleLoader__.load({
 .zct-about-grid{display:flex;align-items:flex-start;gap:28px;flex-wrap:wrap}
 .zct-about-card{flex:1;min-width:220px;display:flex;flex-direction:column;gap:8px;padding:14px;border:0.5px solid var(--dsw-alias-border-l1);border-radius:12px;background:var(--dsw-alias-bg-layer-1)}
 .zct-about-link{font-size:16px;font-weight:600}
+.zct-about-repo{font-size:13px;overflow-wrap:anywhere}
+.zct-about-sep{height:1px;margin:4px 0;background:var(--dsw-alias-border-l1)}
 .zct-about-qr{margin:0;display:flex;flex-direction:column;align-items:center;gap:8px}
 .zct-about-qr img{display:block;width:180px;height:180px;border-radius:12px;border:0.5px solid var(--dsw-alias-border-l2);background:#fff}
 .zct-about-qr figcaption{font-size:12px;color:var(--dsw-alias-label-tertiary)}
@@ -2612,7 +2721,19 @@ window.__ModuleLoader__.load({
             onClick: () => { openFromMenu(ABOUT_ID) },
           },
           h('span', { className: 'zct-menu-icon' }, h(InfoIcon)),
-          h('span', { className: 'zct-menu-name' }, t('menu.about')))))
+          h('span', { className: 'zct-menu-name' }, t('menu.about'))),
+          h('button', {
+            type: 'button',
+            role: 'menuitem',
+            className: 'zct-menu-item',
+            onClick: () => {
+              setMenuOpen(false)
+              if (buttonRef.current !== null) buttonRef.current.focus()
+              openExternal(BRAND_GITHUB)
+            },
+          },
+          h('span', { className: 'zct-menu-icon' }, h(GitHubIcon)),
+          h('span', { className: 'zct-menu-name' }, t('menu.github')))))
         : null
 
       const text = wide

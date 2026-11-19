@@ -190,8 +190,13 @@ for (const node of toolNodes) {
 for (const name of ['JsonTool', 'EncodingTool', 'PasswordTool', 'UuidTool', 'CronTool']) {
   if (primaryCount[name] !== 1) throw new Error(name + ' should have exactly one primary action, got ' + primaryCount[name])
 }
-for (const name of ['RegexTool', 'TimestampTool', 'ColorTool', 'AsciiTool', 'HashTool', 'DiffTool', 'UrlTool', 'TextTool', 'JwtTool', 'SettingsPane', 'AboutPane']) {
+for (const name of ['RegexTool', 'TimestampTool', 'ColorTool', 'AsciiTool', 'HashTool', 'DiffTool', 'UrlTool', 'TextTool', 'JwtTool', 'SettingsPane']) {
   if (primaryCount[name] !== 0) throw new Error(name + ' should not have a primary action, got ' + primaryCount[name])
+}
+if (primaryCount.AboutPane !== 1) throw new Error('AboutPane should have exactly one primary action (GitHub star)')
+const aboutStar = findAll(aboutTree, isPrimary)[0]
+if (!String(aboutStar.props.href).includes('github.com/ax2/dsh-zicode-tools')) {
+  throw new Error('the About primary action should point at the GitHub repository')
 }
 const passwordTree = toolNodes.find((node) => node.type.name === 'PasswordTool').type(toolNodes.find((node) => node.type.name === 'PasswordTool').props)
 const passwordPrimary = findAll(passwordTree, isPrimary)[0]

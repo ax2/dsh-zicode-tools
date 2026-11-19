@@ -34,12 +34,18 @@
 - 二维码原图来自 `https://zicode.com/qrcode_zicode.jpg`，以内嵌 data URL 形式随插件分发，离线可用；原图也随包保留在 [assets/qrcode_zicode.jpg](dsh-zicode-tools/assets/qrcode_zicode.jpg) 以便替换。
 - 后续在 www.zicode.com 软件模块上线入口/落地页后，只需改 `client.js` 顶部的 `BRAND_HOME` / `BRAND_SOFTWARE` 两个常量。
 
+## 项目与 Star
+
+- 源码与 Issue：[github.com/ax2/dsh-zicode-tools](https://github.com/ax2/dsh-zicode-tools)
+- 二级菜单底部有 **GitHub / Star…** 入口；「关于 zicode」页有 GitHub 仓库、复制链接和 **Star 这个项目** 按钮。
+- 如果这个工具箱帮到你，欢迎在 GitHub 点个 Star。
+
 ## 工具（14 个）
 
 | 工具 | 能力 |
 | --- | --- |
 | **JSON** | 格式化（2/4 空格、Tab）、压缩、校验、键排序；出错给出行列位置 |
-| **编码转换** | Base64（含 URL-safe）、URL 编码、HTML 实体、Unicode 转义、UTF-8 十六进制，双向转换 |
+| **编码转换** | Base64（含 URL-safe / 无 padding 选项）、URL 编码、HTML 实体、Unicode 转义、UTF-8 十六进制，双向转换 |
 | **密码生成** | 长度 4–64，大写/小写/数字/符号任选，排除 `Il1O0o`；`crypto.getRandomValues` 无偏随机；实时熵值与强度 |
 | **正则测试** | 模式 + g/i/m/s/u 标志、实时高亮、匹配位置与捕获组、替换预览 |
 | **时间戳** | 实时秒/毫秒/本地/UTC/ISO；时间戳 ↔ 日期双向转换 |
@@ -47,11 +53,11 @@
 | **ASCII 码表** | 0–127 的 DEC/HEX/OCT/BIN/字符/名称；输入字符、十进制或 `0x41` 直接查；方向键浏览、回车复制 |
 | **哈希** | SHA-1 / SHA-256 / SHA-384 / SHA-512，输出十六进制与 Base64 |
 | **UUID** | 批量生成 v4 UUID（1–50 个），可大写、可去短横线 |
-| **文本对比** | 逐行 LCS diff，标出新增/删除，复制统一格式结果 |
+| **文本对比** | 逐行 LCS diff，自动统一 CRLF，可忽略空白/大小写，标出新增/删除并复制统一格式结果 |
 | **URL 解析** | 拆分协议/主机/端口/路径/查询串/锚点，解码查询参数，复制为 JSON |
 | **文本工具** | 字符、UTF-8 字节、词、行、中文数统计；大小写与 camel/snake/kebab/CONSTANT 命名转换 |
-| **JWT 解码** | 解码 header/payload，显示 exp/iat/nbf；不校验签名 |
-| **Cron 解析** | 五段式 Cron 解析 + 接下来 5 次运行时间（处理 DOM/DOW 的 OR 语义） |
+| **JWT 解码** | 解码 header/payload，显示 exp/iat/nbf 与过期状态；不校验签名 |
+| **Cron 解析** | 五段式 Cron 解析 + 接下来 5 次运行时间（处理 DOM/DOW 的 OR 语义，按本地时区） |
 
 ## 安装
 
