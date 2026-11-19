@@ -142,6 +142,21 @@ const firstTree = openOverlay()
 const dialog = findAll(firstTree, (node) => node.props.role === 'dialog')[0]
 if (dialog.props['data-shortcut-modal'] !== 'zicode-tools') throw new Error('dialog does not own shortcut modality')
 
+const header = findAll(firstTree, (node) => node.props.className === 'zct-head')[0]
+if (header === undefined) throw new Error('dialog header missing')
+if (findAll(header, (node) => node.props.className === 'zct-kbd').length !== 0) {
+  throw new Error('the shortcut hint should live in the footer, not the header')
+}
+const footerEl = findAll(firstTree, (node) => node.props.className === 'zct-foot')[0]
+if (findAll(footerEl, (node) => node.props.className === 'zct-kbd').length !== 2) {
+  throw new Error('footer should show the toggle shortcut next to Esc')
+}
+
+const styleText = String(findAll(firstTree, (node) => node.type === 'style')[0].children[0])
+if (!styleText.includes('--dsw-alias-button-primary-fill')) throw new Error('primary button should use the DSH fill token')
+if (!styleText.includes('--dsw-alias-label-primary-foreground')) throw new Error('primary button text should flip with the theme')
+if (styleText.includes('--dsw-alias-label-on-color')) throw new Error('label-on-color does not flip with the dark theme')
+
 const panels = findAll(firstTree, (node) => node.props.className === 'zct-tool-panel')
 if (panels.length !== 16) throw new Error('expected 14 tool panels plus settings and about, got ' + panels.length)
 if (panels.filter((panel) => panel.props.hidden === true).length !== 15) throw new Error('exactly one panel should be visible')

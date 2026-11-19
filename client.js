@@ -28,7 +28,7 @@ window.__ModuleLoader__.load({
     const BRAND_HOME = 'https://www.zicode.com'
     const BRAND_SOFTWARE = 'https://www.zicode.com/software/'
     const BRAND_SITE_LABEL = 'www.zicode.com'
-    const VERSION = '0.3.0'
+    const VERSION = '0.3.1'
 
     /* --------------------------------------------------------------- locale */
 
@@ -42,6 +42,7 @@ window.__ModuleLoader__.load({
       'panel.tools': 'Tools',
       'panel.close': 'Close',
       'panel.hotkeyHint': 'Default shortcut; change it under Settings → Shortcuts',
+      'panel.toggle': 'toggle',
       'panel.local': 'Runs locally',
       'panel.noMatch': 'No matching tool',
       'panel.esc': 'to close',
@@ -262,6 +263,7 @@ window.__ModuleLoader__.load({
       'panel.tools': '工具',
       'panel.close': '关闭',
       'panel.hotkeyHint': '默认快捷键，可在「设置 → 快捷键」中修改',
+      'panel.toggle': '切换',
       'panel.local': '纯本地运行',
       'panel.noMatch': '没有匹配的工具',
       'panel.esc': '关闭',
@@ -2320,7 +2322,7 @@ window.__ModuleLoader__.load({
 .zct-dialog{display:flex;flex-direction:column;width:min(940px,100%);height:min(640px,100%);min-height:320px;overflow:hidden;border:0.5px solid var(--dsw-alias-border-l1);border-radius:16px;background:var(--dsw-alias-bg-overlay);color:var(--dsw-alias-label-primary);box-shadow:var(--dsw-elevation-prominent,0 24px 64px rgba(0,0,0,.3));font-family:inherit;font-size:13px;line-height:1.5}
 .zct-head{flex:none;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 18px;border-bottom:0.5px solid var(--dsw-alias-border-l1)}
 .zct-brand{display:flex;align-items:center;gap:10px;min-width:0}
-.zct-brand-mark{flex:none;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:9px;background:var(--dsw-alias-brand-primary);color:var(--dsw-alias-label-on-color,#fff)}
+.zct-brand-mark{flex:none;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:9px;background:var(--dsw-alias-brand-primary);color:var(--dsw-alias-label-primary-foreground,var(--dsw-alias-label-primary-inverted,#fff))}
 .zct-brand-title{font-size:14px;font-weight:600;line-height:20px}
 .zct-brand-sub{font-size:11px;line-height:16px;color:var(--dsw-alias-label-tertiary)}
 .zct-head-right{display:flex;align-items:center;gap:10px;flex:none}
@@ -2347,7 +2349,9 @@ window.__ModuleLoader__.load({
 .zct-tool-panel{display:flex;flex-direction:column;gap:12px}
 .zct-tool-panel[hidden]{display:none}
 .zct-valid{margin:0;color:var(--dsw-alias-state-success-primary);font-size:12px}
-.zct-foot{flex:none;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:7px 18px;border-top:0.5px solid var(--dsw-alias-border-l1);font-size:11px;color:var(--dsw-alias-label-tertiary)}
+.zct-foot{flex:none;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:7px 18px;border-top:0.5px solid var(--dsw-alias-border-l1);font-size:11px;color:var(--dsw-alias-label-tertiary)}
+.zct-shortcuts{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}
+.zct-sep-dot{opacity:.6}
 .zct-foot-brand{display:flex;align-items:center;gap:8px;flex:none}
 .zct-foot-qr{display:flex;align-items:center;justify-content:center;width:38px;height:38px;padding:1px;border:0.5px solid var(--dsw-alias-border-l2);border-radius:7px;background:#fff;cursor:pointer;overflow:hidden}
 .zct-foot-qr img{display:block;width:34px;height:34px;border-radius:5px}
@@ -2355,7 +2359,7 @@ window.__ModuleLoader__.load({
 .zct-foot-brandtext .zct-link{font-size:11px}
 .zct-foot-wechat{padding:0;border:none;background:transparent;color:var(--dsw-alias-label-tertiary);font:inherit;font-size:11px;text-align:left;cursor:pointer}
 .zct-foot-wechat:hover{color:var(--dsw-alias-label-secondary)}
-.zct-link{color:var(--dsw-alias-brand-primary);text-decoration:none}
+.zct-link{color:var(--dsw-alias-link);text-decoration:none}
 .zct-link:hover{text-decoration:underline}
 .zct-field{display:flex;flex-direction:column;gap:6px}
 .zct-label{font-size:12px;color:var(--dsw-alias-label-secondary)}
@@ -2370,16 +2374,16 @@ window.__ModuleLoader__.load({
 .zct-btn{display:inline-flex;align-items:center;justify-content:center;height:28px;padding:0 12px;border:0.5px solid var(--dsw-alias-border-l2);border-radius:7px;background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:12px;text-decoration:none;cursor:pointer}
 .zct-btn:hover:not(:disabled){background:var(--dsw-alias-interactive-bg-hover,rgba(127,127,127,.12));color:var(--dsw-alias-label-primary)}
 .zct-btn:disabled{opacity:.45;cursor:default}
-.zct-btn-primary{border-color:transparent;background:var(--dsw-alias-brand-primary);color:var(--dsw-alias-label-on-color,#fff)}
-.zct-btn-primary:hover:not(:disabled){background:var(--dsw-alias-brand-primary);color:var(--dsw-alias-label-on-color,#fff);opacity:.9}
+.zct-btn-primary{border-color:transparent;background:var(--dsw-alias-button-primary-fill,var(--dsw-alias-brand-primary));color:var(--dsw-alias-label-primary-foreground,var(--dsw-alias-label-primary-inverted,#fff))}
+.zct-btn-primary:hover:not(:disabled){background:var(--dsw-alias-button-primary-hover,var(--dsw-alias-button-primary-fill));color:var(--dsw-alias-label-primary-foreground,var(--dsw-alias-label-primary-inverted,#fff))}
 .zct-chip{height:26px;padding:0 10px;border:0.5px solid var(--dsw-alias-border-l2);border-radius:999px;background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:12px;cursor:pointer}
 .zct-chip:hover{background:var(--dsw-alias-interactive-bg-hover,rgba(127,127,127,.12))}
 .zct-chip-active{border-color:var(--dsw-alias-brand-primary);color:var(--dsw-alias-brand-primary)}
 .zct-segmented{display:flex;flex-wrap:wrap;gap:6px}
 .zct-switch-row{display:flex;align-items:center;gap:8px;border:none;background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:12px;padding:4px 0;cursor:pointer;text-align:left}
 .zct-switch{position:relative;flex:none;width:28px;height:16px;border-radius:999px;background:var(--dsw-alias-border-l2);transition:background .15s}
-.zct-switch-on{background:var(--dsw-alias-brand-primary)}
-.zct-knob{position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:#fff;transition:transform .15s}
+.zct-switch-on{background:var(--dsw-alias-state-business-primary)}
+.zct-knob{position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.28);transition:transform .15s}
 .zct-switch-on .zct-knob{transform:translateX(12px)}
 .zct-grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 16px}
 .zct-stats{display:flex;flex-wrap:wrap;gap:8px 16px;padding:10px 12px;border:0.5px solid var(--dsw-alias-border-l1);border-radius:10px;background:var(--dsw-alias-bg-layer-1);font-size:12px;color:var(--dsw-alias-label-tertiary)}
@@ -2433,7 +2437,7 @@ window.__ModuleLoader__.load({
 .zct-bar-on.zct-level-2,.zct-bar-on.zct-level-3{background:var(--dsw-alias-state-success-primary)}
 .zct-range{width:100%;accent-color:var(--dsw-alias-brand-primary)}
 .zct-code{margin:0;padding:10px 12px;border-radius:10px;background:var(--dsw-alias-bg-layer-1);border:0.5px solid var(--dsw-alias-border-l1);font-family:var(--dsh-font-family-code,ui-monospace,monospace);font-size:12px;line-height:1.6;white-space:pre-wrap;word-break:break-all;color:var(--dsw-alias-label-primary);max-height:32vh;overflow:auto}
-.zct-hit{background:var(--dsw-alias-brand-primary);color:var(--dsw-alias-label-on-color,#fff);border-radius:3px;padding:0 1px}
+.zct-hit{background:var(--dsw-alias-brand-primary);color:var(--dsw-alias-label-primary-foreground,var(--dsw-alias-label-primary-inverted,#fff));border-radius:3px;padding:0 1px}
 .zct-match-list{display:flex;flex-direction:column;gap:4px;max-height:24vh;overflow:auto}
 .zct-match{display:flex;align-items:center;flex-wrap:wrap;gap:6px;font-size:12px;padding:4px 6px;border-radius:6px;background:var(--dsw-alias-bg-layer-1)}
 .zct-match-index{flex:none;color:var(--dsw-alias-label-tertiary);font-size:11px;font-variant-numeric:tabular-nums}
@@ -2784,7 +2788,6 @@ window.__ModuleLoader__.load({
               h('div', { className: 'zct-brand-title' }, t('panel.title')),
               h('div', { className: 'zct-brand-sub' }, t('panel.subtitle')))),
           h('div', { className: 'zct-head-right' },
-            h('span', { className: 'zct-kbd', title: t('panel.hotkeyHint') }, HOTKEY),
             h('button', {
               type: 'button',
               className: 'zct-close',
@@ -2880,7 +2883,12 @@ window.__ModuleLoader__.load({
               }, h(AboutPane, { t }))))),
 
         h('footer', { className: 'zct-foot' },
-          h('span', null, h('span', { className: 'zct-kbd' }, 'Esc'), ' ' + t('panel.esc')),
+          h('span', { className: 'zct-shortcuts' },
+            h('span', { className: 'zct-kbd', title: t('panel.hotkeyHint') }, HOTKEY),
+            h('span', null, t('panel.toggle')),
+            h('span', { className: 'zct-sep-dot' }, '·'),
+            h('span', { className: 'zct-kbd' }, 'Esc'),
+            h('span', null, t('panel.esc'))),
           h('div', { className: 'zct-foot-brand' },
             h('button', {
               type: 'button',
