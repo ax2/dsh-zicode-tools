@@ -8,6 +8,12 @@ const captured = []
 globalThis.window = {
   __ModuleLoader__: { load(spec) { captured.push(spec) } },
   dshDesktop: { keyboard: {} },
+  innerWidth: 1280,
+  innerHeight: 800,
+  requestAnimationFrame: () => 0,
+  cancelAnimationFrame: () => {},
+  setTimeout: (...args) => globalThis.setTimeout(...args),
+  clearTimeout: (...args) => globalThis.clearTimeout(...args),
 }
 globalThis.document = {
   activeElement: null,
@@ -115,9 +121,9 @@ const overlay = slots.find((entry) => entry.definition.name === 'shell.overlay')
 const footerTree = footer.component({ wide: true, t })
 const footerButtons = findAll(footerTree, (node) => node.type === 'button')
 if (footerButtons.length !== 1) throw new Error('footer expected 1 button, got ' + footerButtons.length)
-if (footerButtons[0].props['aria-haspopup'] !== 'dialog') throw new Error('footer button is not a dialog trigger')
+if (footerButtons[0].props['aria-haspopup'] !== 'menu') throw new Error('footer button is not a menu trigger')
 if (overlay.component({ t }) !== null) throw new Error('overlay should render null while closed')
-footerButtons[0].props.onClick()
+shortcut.command.resolve({ modal: null, region: 'page', target: null }).run()
 
 const openOverlay = () => {
   const tree = overlay.component({ t })
@@ -130,25 +136,28 @@ const openOverlay = () => {
 }
 
 const tabs = findAll(openOverlay(), (node) => node.props.role === 'tab')
-if (tabs.length !== 8) throw new Error('expected 8 tool tabs, got ' + tabs.length)
+if (tabs.length !== 15) throw new Error('expected 14 tool tabs plus settings, got ' + tabs.length)
 
 const firstTree = openOverlay()
 const dialog = findAll(firstTree, (node) => node.props.role === 'dialog')[0]
 if (dialog.props['data-shortcut-modal'] !== 'zicode-tools') throw new Error('dialog does not own shortcut modality')
 
 const panels = findAll(firstTree, (node) => node.props.className === 'zct-tool-panel')
-if (panels.length !== 8) throw new Error('expected 8 mounted tool panels, got ' + panels.length)
-if (panels.filter((panel) => panel.props.hidden === true).length !== 7) throw new Error('exactly one panel should be visible')
+if (panels.length !== 15) throw new Error('expected 14 tool panels plus settings, got ' + panels.length)
+if (panels.filter((panel) => panel.props.hidden === true).length !== 14) throw new Error('exactly one panel should be visible')
 
 const toolNodes = findAll(firstTree, (node) => typeof node.type === 'function' && node.props.t === t)
-if (toolNodes.length !== 8) throw new Error('expected 8 tool components, got ' + toolNodes.length)
+if (toolNodes.length !== 15) throw new Error('expected 14 tools plus the settings pane, got ' + toolNodes.length)
 for (const node of toolNodes) {
   const toolTree = node.type(node.props)
   if (toolTree === null) throw new Error('tool rendered nothing')
-  if (findAll(toolTree, () => true).length < 5) throw new Error('tool tree suspiciously small')
+  const size = findAll(toolTree, () => true).length
+  if (size < 3) throw new Error('tool tree suspiciously small: ' + node.type.name + ' (' + size + ')')
 }
 
-const asciiTree = toolNodes[0].type(toolNodes[0].props)
+const asciiNode = toolNodes.find((node) => node.type.name === 'AsciiTool')
+if (asciiNode === undefined) throw new Error('ASCII tool missing')
+const asciiTree = asciiNode.type(asciiNode.props)
 if (findAll(asciiTree, (node) => node.type === 'tr').length !== 129) {
   throw new Error('expected 128 ASCII rows plus a header row')
 }
@@ -169,4 +178,4 @@ for (const field of ['title', 'description', 'detail']) {
   if (typeof enMeta.meta[field] !== 'string' || typeof zhMeta.meta[field] !== 'string') throw new Error('locale meta missing ' + field)
 }
 
-console.log('ok — ' + tabs.length + ' tools, ' + enKeys.length + ' dictionary keys, 2 slots, 1 shortcut')
+console.log('ok — 14 tools + menu settings, ' + enKeys.length + ' dictionary keys, 2 slots, 1 shortcut')

@@ -1,7 +1,7 @@
 {
   "meta": {
-    "title": "Zicode tools",
-    "description": "Developer utilities at the sidebar foot, just above Settings, or press Alt+Shift+Z (Ctrl+Alt+Z on web): ASCII table and code lookup, Base64/URL/HTML/Unicode/hex conversion, password generator, JSON formatting and validation, color conversion, timestamps, UUID batches and SHA hashes. Everything is computed locally in the browser; nothing is sent over the network or read from the session.",
+    "title": "Developer toolbox",
+    "description": "Developer utilities as a sidebar-foot Developer toolbox menu: open the submenu for the most-used tools (count adjustable, ordered by usage), or press Alt+Shift+Z (Ctrl+Alt+Z on web) for the full panel. Fourteen tools: JSON, encoding, password generator, regex tester, timestamps, color, ASCII, hashes, UUID, text diff, URL parser, text tools, JWT decoder and cron parser. Everything is computed locally in the browser; nothing is sent over the network or read from the session.",
     "detail": "docs/DETAIL.md"
   }
 }

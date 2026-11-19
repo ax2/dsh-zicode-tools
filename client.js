@@ -22,14 +22,16 @@ window.__ModuleLoader__.load({
     const HOTKEY = DESKTOP ? (MAC ? '⌥⇧Z' : 'Alt+Shift+Z') : (MAC ? '⌘⌥Z' : 'Ctrl+Alt+Z')
     const HOTKEY_ARIA = DESKTOP ? 'Alt+Shift+Z' : 'Control+Alt+Z'
     const MODAL_ID = 'zicode-tools'
+    const SETTINGS_ID = '__menu-settings'
+    const PREFS_KEY = 'dsh-zicode-tools:prefs'
 
     /* --------------------------------------------------------------- locale */
 
     const EN = {
-      'action.label': 'Zicode tools',
+      'action.label': 'Developer toolbox',
       'action.title': 'Developer toolbox',
-      'shortcut.label': 'Open the Zicode toolbox',
-      'panel.title': 'Zicode toolbox',
+      'shortcut.label': 'Open the developer toolbox',
+      'panel.title': 'Developer toolbox',
       'panel.subtitle': 'Local developer utilities',
       'panel.search': 'Search tools',
       'panel.tools': 'Tools',
@@ -38,6 +40,21 @@ window.__ModuleLoader__.load({
       'panel.local': 'Runs locally',
       'panel.noMatch': 'No matching tool',
       'panel.esc': 'to close',
+      'menu.title': 'Developer toolbox',
+      'menu.all': 'All tools…',
+      'menu.settings': 'Menu settings…',
+      'settings.title': 'Menu settings',
+      'settings.desc': 'Choose the tools in the sidebar menu, how many show, and their order.',
+      'settings.sort': 'Order',
+      'settings.sortUsage': 'Most used',
+      'settings.sortManual': 'Manual',
+      'settings.visible': 'Tools in the menu',
+      'settings.hint': 'Most used ranks by opens; ties follow the manual order.',
+      'settings.order': 'Manual order',
+      'settings.uses': 'uses',
+      'settings.moveUp': 'Move up',
+      'settings.moveDown': 'Move down',
+      'settings.reset': 'Reset',
       'common.copy': 'Copy',
       'common.copied': 'Copied',
       'common.copyFailed': 'Copy failed',
@@ -76,6 +93,7 @@ window.__ModuleLoader__.load({
       'encode.invalidUrl': 'Invalid URL-encoded input',
       'encode.invalidHex': 'Hex must be byte pairs such as 41 42',
       'encode.invalidUnicode': 'Invalid Unicode escape',
+      'encode.invalidHtml': 'Invalid HTML entity input',
       'tool.password.title': 'Password',
       'tool.password.desc': 'Cryptographically random passwords with a live entropy estimate.',
       'password.length': 'Length',
@@ -141,13 +159,86 @@ window.__ModuleLoader__.load({
       'hash.computing': 'Computing…',
       'hash.unsupported': 'Web Crypto is unavailable on this page',
       'hash.empty': 'Type text to compute its digest',
+      'tool.regex.title': 'Regex tester',
+      'tool.regex.desc': 'Test a pattern against text, inspect captures, and preview replacements.',
+      'regex.pattern': 'Pattern',
+      'regex.flags': 'Flags',
+      'regex.flag.g': 'Global (g)',
+      'regex.flag.i': 'Ignore case (i)',
+      'regex.flag.m': 'Multiline (m)',
+      'regex.flag.s': 'Dot matches newline (s)',
+      'regex.flag.u': 'Unicode (u)',
+      'regex.text': 'Text',
+      'regex.matches': 'matches',
+      'regex.replacement': 'Replacement ($&, $1)',
+      'regex.result': 'Replaced text',
+      'tool.cron.title': 'Cron expression',
+      'tool.cron.desc': 'Resolve a five-field cron expression and preview its next runs.',
+      'cron.expression': 'Cron expression',
+      'cron.next': 'Next 5 runs',
+      'cron.invalid': 'Invalid five-field cron expression',
+      'cron.minute': 'Minute',
+      'cron.hour': 'Hour',
+      'cron.day': 'Day',
+      'cron.month': 'Month',
+      'cron.weekday': 'Weekday',
+      'cron.empty': 'Press “Next 5 runs” to compute upcoming times.',
+      'tool.url.title': 'URL parser',
+      'tool.url.desc': 'Break a URL into its parts and decoded query parameters.',
+      'url.input': 'URL',
+      'url.invalid': 'Enter an absolute URL with a scheme, such as https://…',
+      'url.origin': 'Origin',
+      'url.protocol': 'Protocol',
+      'url.host': 'Host',
+      'url.port': 'Port',
+      'url.path': 'Path',
+      'url.search': 'Search',
+      'url.hash': 'Hash',
+      'url.key': 'Key',
+      'url.value': 'Value',
+      'url.noParams': 'No query parameters',
+      'url.copyJson': 'Copy as JSON',
+      'tool.text.title': 'Text tools',
+      'tool.text.desc': 'Character, byte, word and line counts plus case conversion.',
+      'text.input': 'Text',
+      'text.chars': 'chars',
+      'text.bytes': 'bytes',
+      'text.words': 'words',
+      'text.lines': 'lines',
+      'text.cjk': 'CJK',
+      'text.upper': 'UPPER',
+      'text.lower': 'lower',
+      'text.title': 'Title Case',
+      'text.camel': 'camelCase',
+      'text.pascal': 'PascalCase',
+      'text.snake': 'snake_case',
+      'text.kebab': 'kebab-case',
+      'text.constant': 'CONSTANT_CASE',
+      'text.trim': 'Trim spaces',
+      'tool.jwt.title': 'JWT decoder',
+      'tool.jwt.desc': 'Decode a JWT header and payload with claim times; the signature is not verified.',
+      'jwt.input': 'JWT',
+      'jwt.invalid': 'Invalid JWT or non-JSON payload',
+      'jwt.header': 'Header',
+      'jwt.payload': 'Payload',
+      'jwt.exp': 'Expires (exp)',
+      'jwt.iat': 'Issued (iat)',
+      'jwt.nbf': 'Not before (nbf)',
+      'jwt.note': 'Decoded only; the signature is not verified.',
+      'jwt.unsigned': 'no signature section',
+      'tool.diff.title': 'Text diff',
+      'tool.diff.desc': 'Compare two texts line by line and copy the unified result.',
+      'diff.left': 'Original',
+      'diff.right': 'Changed',
+      'diff.tooLarge': 'Too many lines to compare (about 1000 × 1000 max)',
+      'diff.identical': 'No line differences',
     }
 
     const ZH = {
-      'action.label': '字码工具',
-      'action.title': '开发者工具箱',
-      'shortcut.label': '打开字码工具箱',
-      'panel.title': '字码工具箱',
+      'action.label': '开发工具箱',
+      'action.title': '开发工具箱',
+      'shortcut.label': '打开开发工具箱',
+      'panel.title': '开发工具箱',
       'panel.subtitle': '本地开发者小工具',
       'panel.search': '搜索工具',
       'panel.tools': '工具',
@@ -156,6 +247,21 @@ window.__ModuleLoader__.load({
       'panel.local': '纯本地运行',
       'panel.noMatch': '没有匹配的工具',
       'panel.esc': '关闭',
+      'menu.title': '开发工具箱',
+      'menu.all': '全部工具…',
+      'menu.settings': '菜单设置…',
+      'settings.title': '菜单设置',
+      'settings.desc': '决定侧栏二级菜单里显示哪些工具、显示几个、按什么顺序。',
+      'settings.sort': '排序方式',
+      'settings.sortUsage': '常用优先',
+      'settings.sortManual': '手动排序',
+      'settings.visible': '二级菜单显示数量',
+      'settings.hint': '常用优先按打开次数排序；次数相同按手动顺序。',
+      'settings.order': '手动顺序',
+      'settings.uses': '次',
+      'settings.moveUp': '上移',
+      'settings.moveDown': '下移',
+      'settings.reset': '恢复默认',
       'common.copy': '复制',
       'common.copied': '已复制',
       'common.copyFailed': '复制失败',
@@ -194,6 +300,7 @@ window.__ModuleLoader__.load({
       'encode.invalidUrl': 'URL 编码输入无效',
       'encode.invalidHex': '十六进制需为两位一组，如 41 42',
       'encode.invalidUnicode': 'Unicode 转义无效',
+      'encode.invalidHtml': 'HTML 实体输入无效',
       'tool.password.title': '密码生成',
       'tool.password.desc': '基于密码学随机数生成密码，并实时估算熵值。',
       'password.length': '长度',
@@ -259,11 +366,84 @@ window.__ModuleLoader__.load({
       'hash.computing': '计算中…',
       'hash.unsupported': '当前页面不支持 Web Crypto',
       'hash.empty': '输入文本后自动计算摘要',
+      'tool.regex.title': '正则测试',
+      'tool.regex.desc': '用正则匹配文本，查看捕获组，并预览替换结果。',
+      'regex.pattern': '正则表达式',
+      'regex.flags': '标志',
+      'regex.flag.g': '全局匹配 (g)',
+      'regex.flag.i': '忽略大小写 (i)',
+      'regex.flag.m': '多行 (m)',
+      'regex.flag.s': '点号匹配换行 (s)',
+      'regex.flag.u': 'Unicode (u)',
+      'regex.text': '文本',
+      'regex.matches': '处匹配',
+      'regex.replacement': '替换为（$&、$1）',
+      'regex.result': '替换结果',
+      'tool.cron.title': 'Cron 表达式',
+      'tool.cron.desc': '解析五段式 Cron，并预览接下来几次运行时间。',
+      'cron.expression': 'Cron 表达式',
+      'cron.next': '接下来 5 次',
+      'cron.invalid': '五段式 Cron 表达式无效',
+      'cron.minute': '分钟',
+      'cron.hour': '小时',
+      'cron.day': '日',
+      'cron.month': '月',
+      'cron.weekday': '星期',
+      'cron.empty': '点击「接下来 5 次」计算运行时间。',
+      'tool.url.title': 'URL 解析',
+      'tool.url.desc': '拆分 URL 各部分，并解码查询参数。',
+      'url.input': 'URL',
+      'url.invalid': '请输入带协议头的完整 URL，例如 https://…',
+      'url.origin': '源',
+      'url.protocol': '协议',
+      'url.host': '主机',
+      'url.port': '端口',
+      'url.path': '路径',
+      'url.search': '查询串',
+      'url.hash': '锚点',
+      'url.key': '参数',
+      'url.value': '值',
+      'url.noParams': '没有查询参数',
+      'url.copyJson': '复制为 JSON',
+      'tool.text.title': '文本工具',
+      'tool.text.desc': '统计字符、字节、词、行与中文数，并做大小写/命名转换。',
+      'text.input': '文本',
+      'text.chars': '字符',
+      'text.bytes': '字节',
+      'text.words': '词',
+      'text.lines': '行',
+      'text.cjk': '中文',
+      'text.upper': '全大写',
+      'text.lower': '全小写',
+      'text.title': '首字母大写',
+      'text.camel': 'camelCase',
+      'text.pascal': 'PascalCase',
+      'text.snake': 'snake_case',
+      'text.kebab': 'kebab-case',
+      'text.constant': 'CONSTANT_CASE',
+      'text.trim': '压缩空白',
+      'tool.jwt.title': 'JWT 解码',
+      'tool.jwt.desc': '解码 JWT 的 header 与 payload，显示时间声明；不校验签名。',
+      'jwt.input': 'JWT',
+      'jwt.invalid': 'JWT 无效，或 payload 不是 JSON',
+      'jwt.header': 'Header',
+      'jwt.payload': 'Payload',
+      'jwt.exp': '过期时间 (exp)',
+      'jwt.iat': '签发时间 (iat)',
+      'jwt.nbf': '生效时间 (nbf)',
+      'jwt.note': '仅解码，不校验签名。',
+      'jwt.unsigned': '没有签名段',
+      'tool.diff.title': '文本对比',
+      'tool.diff.desc': '逐行比较两段文本，并复制统一格式结果。',
+      'diff.left': '原文',
+      'diff.right': '新文',
+      'diff.tooLarge': '行数过多，最多比较约 1000 × 1000 行',
+      'diff.identical': '没有行差异',
     }
 
     /* ---------------------------------------------------------------- store */
 
-    const state = { open: false, tab: 'ascii', filter: '' }
+    const state = { open: false, tab: 'json', filter: '' }
     const listeners = new Set()
     const emit = () => { for (const listener of listeners) listener() }
     const patch = (next) => { Object.assign(state, next); emit() }
@@ -272,13 +452,21 @@ window.__ModuleLoader__.load({
       return () => { listeners.delete(listener) }
     }
     const useStore = (select) => useSyncExternalStore(subscribe, () => select(state))
-    const setTab = (tab) => patch({ tab })
+    const setTab = (tab) => {
+      patch({ tab })
+      if (tab !== SETTINGS_ID) recordUsage(tab)
+    }
     const setFilter = (filter) => patch({ filter })
     let returnFocus = null
-    const openToolbox = () => {
+    const openToolbox = (tab) => {
       const active = document.activeElement
       returnFocus = active !== null && active !== undefined && active !== document.body ? active : null
-      patch({ open: true })
+      if (tab === undefined) {
+        patch({ open: true })
+        return
+      }
+      patch({ open: true, tab })
+      if (tab !== SETTINGS_ID) recordUsage(tab)
     }
     const closeToolbox = () => patch({ open: false })
     const toggleToolbox = () => { if (state.open) closeToolbox(); else openToolbox() }
@@ -443,6 +631,47 @@ window.__ModuleLoader__.load({
     const HashIcon = () => icon([
       h('path', { key: 's', d: 'M12 3.2 19 6v5.9c0 4.1-2.8 7.3-7 8.9-4.2-1.6-7-4.8-7-8.9V6z' }),
       h('path', { key: 'c', d: 'm9.2 12 2 2 3.6-3.8' }),
+    ])
+    const RegexIcon = () => icon([
+      h('circle', { key: 'c', cx: 10, cy: 10, r: 5.2 }),
+      h('path', { key: 'h', d: 'm14 14 5.5 5.5' }),
+      h('path', { key: 's', d: 'M8 9.5h4M10 7.5v4' }),
+    ])
+    const CronIcon = () => icon([
+      h('rect', { key: 'r', x: 3.5, y: 4.5, width: 17, height: 16, rx: 2.6 }),
+      h('path', { key: 'h', d: 'M3.5 9.5h17' }),
+      h('path', { key: 'a', d: 'M8 3v3' }),
+      h('path', { key: 'b', d: 'M16 3v3' }),
+      h('path', { key: 'c', d: 'M8 13h2' }),
+      h('path', { key: 'd', d: 'M14 13h2' }),
+      h('path', { key: 'e', d: 'M8 17h2' }),
+    ])
+    const UrlIcon = () => icon([
+      h('path', { key: 'a', d: 'M10.2 13.8a5 5 0 0 0 7.1 0l1.4-1.4a5 5 0 0 0-7.1-7.1L10.2 6.7' }),
+      h('path', { key: 'b', d: 'M13.8 10.2a5 5 0 0 0-7.1 0l-1.4 1.4a5 5 0 0 0 7.1 7.1l1.4-1.4' }),
+    ])
+    const TextIcon = () => icon([
+      h('path', { key: 'a', d: 'M5 6h14' }),
+      h('path', { key: 'b', d: 'M12 6v12' }),
+      h('path', { key: 'c', d: 'M9 18h6' }),
+    ])
+    const JwtIcon = () => icon([
+      h('path', { key: 'a', d: 'M8 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h2' }),
+      h('path', { key: 'b', d: 'M16 4h2a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-2' }),
+      h('path', { key: 'c', d: 'M12 8v8' }),
+      h('path', { key: 'd', d: 'M9 12h6' }),
+    ])
+    const DiffIcon = () => icon([
+      h('path', { key: 'a', d: 'M4 6h7' }),
+      h('path', { key: 'b', d: 'M4 12h7' }),
+      h('path', { key: 'c', d: 'M4 18h7' }),
+      h('path', { key: 'd', d: 'M17 5v6' }),
+      h('path', { key: 'e', d: 'M14 8h6' }),
+      h('path', { key: 'f', d: 'M14 17h6' }),
+    ])
+    const SettingsIcon = () => icon([
+      h('circle', { key: 'c', cx: 12, cy: 12, r: 3 }),
+      h('path', { key: 'a', d: 'M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z' }),
     ])
 
     /* ----------------------------------------------------------------- ascii */
@@ -1362,20 +1591,651 @@ window.__ModuleLoader__.load({
           h(ValueRow, { label: t('hash.base64'), value: result.base64, id: 'hash-b64', copyState, t })))
     }
 
-    /* --------------------------------------------------------------- toolbox */
+    /* ---------------------------------------------------------------- regex */
+
+    function RegexTool({ t }) {
+      const [pattern, setPattern] = useState('')
+      const [flags, setFlags] = useState('g')
+      const [text, setText] = useState('')
+      const [replacement, setReplacement] = useState('')
+      const copyState = useCopy()
+
+      const result = useMemo(() => {
+        if (pattern === '') return { matches: [], error: '', segments: [] }
+        let source
+        try {
+          source = new RegExp(pattern, flags)
+        } catch (error) {
+          return { matches: [], error: error.message, segments: [] }
+        }
+        const matches = []
+        try {
+          const iterator = new RegExp(source.source, source.flags.includes('g') ? source.flags : source.flags + 'g')
+          let match
+          while ((match = iterator.exec(text)) !== null) {
+            matches.push({
+              index: match.index,
+              value: match[0],
+              captures: match.slice(1),
+              groups: match.groups === undefined ? [] : Object.entries(match.groups),
+            })
+            if (match[0] === '') iterator.lastIndex += 1
+            if (matches.length >= 200) break
+          }
+        } catch (error) {
+          return { matches: [], error: error.message, segments: [] }
+        }
+        const segments = []
+        let last = 0
+        for (const match of matches) {
+          if (match.index < last) continue
+          if (match.index > last) segments.push({ text: text.slice(last, match.index), hit: false })
+          segments.push({ text: match.value, hit: true })
+          last = match.index + match.value.length
+        }
+        if (last < text.length) segments.push({ text: text.slice(last), hit: false })
+        return { matches, error: '', segments }
+      }, [pattern, flags, text])
+
+      const replaced = useMemo(() => {
+        if (pattern === '' || replacement === '') return ''
+        try {
+          return text.replace(new RegExp(pattern, flags), replacement)
+        } catch (error) {
+          return ''
+        }
+      }, [pattern, flags, text, replacement])
+
+      const toggleFlag = (flag) => {
+        setFlags(flags.includes(flag) ? flags.replace(flag, '') : flags + flag)
+      }
+
+      return h(Fragment, null,
+        h(Field, { label: t('regex.pattern') },
+          h('div', { className: 'zct-actions' },
+            h(Input, {
+              value: pattern,
+              placeholder: '\\b\\w+@\\w+\\.\\w+\\b',
+              spellCheck: false,
+              autoComplete: 'off',
+              onChange: (event) => { setPattern(event.target.value) },
+            }),
+            h('div', { className: 'zct-segmented' },
+              ['g', 'i', 'm', 's', 'u'].map(flag => h('button', {
+                key: flag,
+                type: 'button',
+                className: flags.includes(flag) ? 'zct-chip zct-chip-active' : 'zct-chip',
+                title: t('regex.flag.' + flag),
+                'aria-pressed': flags.includes(flag),
+                onClick: () => { toggleFlag(flag) },
+              }, flag))))),
+        h(ErrorLine, null, result.error),
+        h(Field, { label: t('regex.text') },
+          h(TextArea, {
+            value: text,
+            rows: 6,
+            spellCheck: false,
+            placeholder: t('regex.text'),
+            onChange: (event) => { setText(event.target.value) },
+          })),
+        text !== '' && pattern !== '' && result.error === ''
+          ? h(Fragment, null,
+            h('p', { className: 'zct-hint-line' }, result.matches.length + ' ' + t('regex.matches')),
+            h('pre', { className: 'zct-code zct-highlight' },
+              result.segments.map((segment, index) => segment.hit
+                ? h('mark', { key: index, className: 'zct-hit' }, segment.text)
+                : h('span', { key: index }, segment.text))))
+          : null,
+        result.matches.length > 0 ? h('div', { className: 'zct-match-list' },
+          result.matches.slice(0, 50).map((match, index) => h('div', { className: 'zct-match', key: index },
+            h('span', { className: 'zct-match-index' }, '#' + (index + 1) + ' @' + match.index),
+            h('code', { className: 'zct-match-value' }, match.value === '' ? '∅' : match.value),
+            match.captures.length > 0
+              ? h('span', { className: 'zct-match-groups' }, match.captures.map((capture, captureIndex) =>
+                h('span', { className: 'zct-chip zct-chip-mini', key: captureIndex }, capture === undefined ? '—' : capture)))
+              : null,
+            match.groups.length > 0
+              ? h('span', { className: 'zct-match-groups' }, match.groups.map(([name, value]) =>
+                h('span', { className: 'zct-chip zct-chip-mini', key: name }, name + '=' + value)))
+              : null))) : null,
+        h(Field, { label: t('regex.replacement') },
+          h(Input, {
+            value: replacement,
+            placeholder: '$& / $1',
+            spellCheck: false,
+            onChange: (event) => { setReplacement(event.target.value) },
+          })),
+        replaced !== ''
+          ? h(Fragment, null,
+            h(Field, { label: t('regex.result') },
+              h(TextArea, { value: replaced, rows: 5, readOnly: true })),
+            h('div', { className: 'zct-actions' }, h(CopyButton, { id: 'regex-result', text: replaced, copyState, t })))
+          : null)
+    }
+
+    /* ----------------------------------------------------------------- cron */
+
+    function parseCronField(field, min, max) {
+      const values = new Set()
+      for (const part of field.split(',')) {
+        if (part === '') return null
+        const [range, stepText] = part.split('/')
+        const step = stepText === undefined ? 1 : Number(stepText)
+        if (!Number.isInteger(step) || step <= 0) return null
+        if (range === '*') {
+          for (let value = min; value <= max; value += step) values.add(value)
+          continue
+        }
+        const bounds = range.split('-')
+        const start = Number(bounds[0])
+        const end = bounds.length === 1 ? start : Number(bounds[1])
+        if (!Number.isInteger(start) || !Number.isInteger(end) || start < min || end > max || start > end) return null
+        for (let value = start; value <= end; value += step) values.add(value)
+      }
+      return values.size === 0 ? null : [...values].sort((a, b) => a - b)
+    }
+
+    function parseCron(expression) {
+      const parts = expression.trim().split(/\s+/)
+      if (parts.length !== 5) return { error: true }
+      const minute = parseCronField(parts[0], 0, 59)
+      const hour = parseCronField(parts[1], 0, 23)
+      const day = parseCronField(parts[2], 1, 31)
+      const month = parseCronField(parts[3], 1, 12)
+      const weekdayRaw = parseCronField(parts[4], 0, 7)
+      if (minute === null || hour === null || day === null || month === null || weekdayRaw === null) return { error: true }
+      return {
+        minute,
+        hour,
+        day,
+        month,
+        weekday: [...new Set(weekdayRaw.map(value => value === 7 ? 0 : value))].sort((a, b) => a - b),
+        dayRestricted: !parts[2].startsWith('*'),
+        weekdayRestricted: !parts[4].startsWith('*'),
+      }
+    }
+
+    function nextCronRuns(parsed, count) {
+      const runs = []
+      const start = new Date()
+      start.setSeconds(0, 0)
+      let time = start.getTime() + 60000
+      for (let step = 0; step < 527040 && runs.length < count; step += 1, time += 60000) {
+        const date = new Date(time)
+        if (!parsed.minute.includes(date.getMinutes())) continue
+        if (!parsed.hour.includes(date.getHours())) continue
+        if (!parsed.month.includes(date.getMonth() + 1)) continue
+        const dayMatch = parsed.day.includes(date.getDate())
+        const weekdayMatch = parsed.weekday.includes(date.getDay())
+        // Vixie cron ORs day-of-month and day-of-week when both fields are restricted.
+        const dateMatch = parsed.dayRestricted && parsed.weekdayRestricted
+          ? dayMatch || weekdayMatch
+          : dayMatch && weekdayMatch
+        if (!dateMatch) continue
+        runs.push(date)
+      }
+      return runs
+    }
+
+    function CronTool({ t }) {
+      const [expression, setExpression] = useState('*/5 * * * *')
+      const [runs, setRuns] = useState([])
+      const parsed = useMemo(() => parseCron(expression), [expression])
+      const copyState = useCopy()
+      const field = (values) => values.length > 12 ? values.slice(0, 12).join(', ') + ' …' : values.join(', ')
+
+      return h(Fragment, null,
+        h(Field, { label: t('cron.expression') },
+          h('div', { className: 'zct-actions' },
+            h(Input, {
+              value: expression,
+              spellCheck: false,
+              autoComplete: 'off',
+              placeholder: '*/5 * * * *',
+              onChange: (event) => { setExpression(event.target.value); setRuns([]) },
+            }),
+            h(Btn, {
+              primary: true,
+              disabled: parsed.error === true,
+              onClick: () => { setRuns(nextCronRuns(parsed, 5)) },
+            }, t('cron.next')),
+            h(CopyButton, { id: 'cron-expression', text: expression, copyState, t }))),
+        parsed.error === true ? h(ErrorLine, null, t('cron.invalid')) : null,
+        parsed.error === undefined && h('div', { className: 'zct-card zct-card-stack' },
+          h(ValueRow, { label: t('cron.minute'), value: field(parsed.minute), id: 'cron-minute', copyState, t }),
+          h(ValueRow, { label: t('cron.hour'), value: field(parsed.hour), id: 'cron-hour', copyState, t }),
+          h(ValueRow, { label: t('cron.day'), value: field(parsed.day), id: 'cron-day', copyState, t }),
+          h(ValueRow, { label: t('cron.month'), value: field(parsed.month), id: 'cron-month', copyState, t }),
+          h(ValueRow, { label: t('cron.weekday'), value: field(parsed.weekday), id: 'cron-weekday', copyState, t })),
+        runs.length > 0 ? h('div', { className: 'zct-card zct-card-stack' },
+          runs.map((run, index) => h(ValueRow, {
+            key: index,
+            label: '#' + (index + 1),
+            value: run.toLocaleString(),
+            id: 'cron-run-' + index,
+            copyState,
+            t,
+          }))) : null,
+        parsed.error === undefined && runs.length === 0
+          ? h(HintLine, null, t('cron.empty'))
+          : null)
+    }
+
+    /* ------------------------------------------------------------------ url */
+
+    function UrlTool({ t }) {
+      const [input, setInput] = useState('')
+      const copyState = useCopy()
+      const parsed = useMemo(() => {
+        const trimmed = input.trim()
+        if (trimmed === '') return null
+        try {
+          const url = new URL(trimmed)
+          return { url, params: [...url.searchParams.entries()] }
+        } catch (error) {
+          return { error: true }
+        }
+      }, [input])
+
+      const rows = parsed !== null && parsed.error === undefined ? [
+        [t('url.origin'), parsed.url.origin],
+        [t('url.protocol'), parsed.url.protocol],
+        [t('url.host'), parsed.url.host],
+        [t('url.port'), parsed.url.port === '' ? '—' : parsed.url.port],
+        [t('url.path'), parsed.url.pathname],
+        [t('url.search'), parsed.url.search === '' ? '—' : parsed.url.search],
+        [t('url.hash'), parsed.url.hash === '' ? '—' : parsed.url.hash],
+      ] : []
+
+      const json = parsed !== null && parsed.error === undefined
+        ? JSON.stringify({ url: parsed.url.href, params: parsed.params }, null, 2)
+        : ''
+
+      return h(Fragment, null,
+        h(Field, { label: t('url.input') },
+          h(Input, {
+            value: input,
+            spellCheck: false,
+            autoComplete: 'off',
+            placeholder: 'https://example.com/path?x=1&y=2',
+            onChange: (event) => { setInput(event.target.value) },
+          })),
+        parsed !== null && parsed.error === true ? h(ErrorLine, null, t('url.invalid')) : null,
+        parsed !== null && parsed.error === undefined
+          ? h(Fragment, null,
+            h('div', { className: 'zct-card zct-card-stack' },
+              rows.map(([label, value]) => h(ValueRow, { key: label, label, value: String(value), id: 'url-' + label, copyState, t }))),
+            parsed.params.length > 0
+              ? h('div', { className: 'zct-table-wrap' },
+                h('table', { className: 'zct-table' },
+                  h('thead', null, h('tr', null, h('th', null, t('url.key')), h('th', null, t('url.value')))),
+                  h('tbody', null, parsed.params.map(([key, value], index) => h('tr', { key: index },
+                    h('td', null, key),
+                    h('td', { className: 'zct-dim' }, value))))))
+              : h(HintLine, null, t('url.noParams')),
+            h('div', { className: 'zct-actions' }, h(CopyButton, { id: 'url-json', text: json, copyState, t, label: t('url.copyJson') })))
+          : null)
+    }
+
+    /* ----------------------------------------------------------------- text */
+
+    function splitWords(text) {
+      return text
+        .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+        .split(/[^A-Za-z0-9\u4e00-\u9fff]+/)
+        .filter(word => word !== '')
+    }
+
+    const capitalize = (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+
+    const CASE_TRANSFORMS = {
+      upper: (text) => text.toUpperCase(),
+      lower: (text) => text.toLowerCase(),
+      title: (text) => text.replace(/\S+/g, capitalize),
+      camel: (text) => splitWords(text).map((word, index) => index === 0 ? word.toLowerCase() : capitalize(word)).join(''),
+      pascal: (text) => splitWords(text).map(capitalize).join(''),
+      snake: (text) => splitWords(text).map(word => word.toLowerCase()).join('_'),
+      kebab: (text) => splitWords(text).map(word => word.toLowerCase()).join('-'),
+      constant: (text) => splitWords(text).map(word => word.toUpperCase()).join('_'),
+    }
+
+    function TextTool({ t }) {
+      const [input, setInput] = useState('')
+      const copyState = useCopy()
+      const stats = useMemo(() => ({
+        chars: Array.from(input).length,
+        bytes: new TextEncoder().encode(input).length,
+        words: input.trim() === '' ? 0 : input.trim().split(/\s+/).length,
+        lines: input === '' ? 0 : input.split('\n').length,
+        cjk: (input.match(/[\u3400-\u9fff]/g) || []).length,
+      }), [input])
+
+      return h(Fragment, null,
+        h(Field, { label: t('text.input') },
+          h(TextArea, {
+            value: input,
+            rows: 8,
+            spellCheck: false,
+            placeholder: t('text.input'),
+            onChange: (event) => { setInput(event.target.value) },
+          })),
+        h('div', { className: 'zct-stats' },
+          [['chars', stats.chars], ['bytes', stats.bytes], ['words', stats.words], ['lines', stats.lines], ['cjk', stats.cjk]]
+            .map(([key, value]) => h('span', { className: 'zct-stat', key }, h('strong', null, String(value)), ' ' + t('text.' + key)))),
+        h('div', { className: 'zct-actions' },
+          Object.keys(CASE_TRANSFORMS).map(key => h(Btn, {
+            key,
+            onClick: () => { setInput(CASE_TRANSFORMS[key](input)) },
+          }, t('text.' + key))),
+          h(Btn, { onClick: () => { setInput(input.replace(/[ \t]+/g, ' ').trim()) } }, t('text.trim'))),
+        h('div', { className: 'zct-actions' },
+          h(CopyButton, { id: 'text-copy', text: input, copyState, t })))
+    }
+
+    /* ------------------------------------------------------------------ jwt */
+
+    function base64UrlDecode(text) {
+      const normalized = text.replace(/-/g, '+').replace(/_/g, '/')
+      const padded = normalized + '='.repeat((4 - normalized.length % 4) % 4)
+      const binary = atob(padded)
+      const bytes = new Uint8Array(binary.length)
+      for (let index = 0; index < binary.length; index += 1) bytes[index] = binary.charCodeAt(index)
+      return new TextDecoder('utf-8', { fatal: true }).decode(bytes)
+    }
+
+    function JwtTool({ t }) {
+      const [input, setInput] = useState('')
+      const copyState = useCopy()
+      const parsed = useMemo(() => {
+        const token = input.trim()
+        if (token === '') return null
+        const parts = token.split('.')
+        if (parts.length < 2) return { error: true }
+        try {
+          return {
+            header: JSON.stringify(JSON.parse(base64UrlDecode(parts[0])), null, 2),
+            payload: JSON.stringify(JSON.parse(base64UrlDecode(parts[1])), null, 2),
+            claims: JSON.parse(base64UrlDecode(parts[1])),
+            signed: parts.length >= 3 && parts[2] !== '',
+          }
+        } catch (error) {
+          return { error: true }
+        }
+      }, [input])
+
+      const claims = parsed !== null && parsed.error === undefined
+        && parsed.claims !== null && typeof parsed.claims === 'object' ? parsed.claims : {}
+      const timeRow = (key, label) => {
+        const value = claims[key]
+        if (typeof value !== 'number') return null
+        return h(ValueRow, {
+          key,
+          label,
+          value: new Date(value * 1000).toLocaleString(),
+          id: 'jwt-' + key,
+          copyState,
+          t,
+        })
+      }
+
+      return h(Fragment, null,
+        h(Field, { label: t('jwt.input') },
+          h(TextArea, {
+            value: input,
+            rows: 5,
+            spellCheck: false,
+            placeholder: 'eyJhbGciOi...',
+            onChange: (event) => { setInput(event.target.value) },
+          })),
+        parsed !== null && parsed.error === true ? h(ErrorLine, null, t('jwt.invalid')) : null,
+        parsed !== null && parsed.error === undefined
+          ? h(Fragment, null,
+            h(Field, { label: t('jwt.header') },
+              h(TextArea, { value: parsed.header, rows: 5, readOnly: true })),
+            h(Field, { label: t('jwt.payload') },
+              h(TextArea, { value: parsed.payload, rows: 8, readOnly: true })),
+            h('div', { className: 'zct-card zct-card-stack' },
+              timeRow('exp', t('jwt.exp')),
+              timeRow('iat', t('jwt.iat')),
+              timeRow('nbf', t('jwt.nbf'))),
+            h(HintLine, null, t('jwt.note') + (parsed.signed ? '' : ' · ' + t('jwt.unsigned'))),
+            h('div', { className: 'zct-actions' },
+              h(CopyButton, { id: 'jwt-header', text: parsed.header, copyState, t }),
+              h(CopyButton, { id: 'jwt-payload', text: parsed.payload, copyState, t })))
+          : null)
+    }
+
+    /* ----------------------------------------------------------------- diff */
+
+    function diffLines(left, right) {
+      const a = left.split('\n')
+      const b = right.split('\n')
+      if (a.length * b.length > 1000000) return null
+      const table = Array.from({ length: a.length + 1 }, () => new Uint16Array(b.length + 1))
+      for (let i = a.length - 1; i >= 0; i -= 1) {
+        for (let j = b.length - 1; j >= 0; j -= 1) {
+          table[i][j] = a[i] === b[j] ? table[i + 1][j + 1] + 1 : Math.max(table[i + 1][j], table[i][j + 1])
+        }
+      }
+      const ops = []
+      let i = 0
+      let j = 0
+      while (i < a.length && j < b.length) {
+        if (a[i] === b[j]) { ops.push({ type: 'same', text: a[i] }); i += 1; j += 1 }
+        else if (table[i + 1][j] >= table[i][j + 1]) { ops.push({ type: 'del', text: a[i] }); i += 1 }
+        else { ops.push({ type: 'add', text: b[j] }); j += 1 }
+      }
+      while (i < a.length) { ops.push({ type: 'del', text: a[i] }); i += 1 }
+      while (j < b.length) { ops.push({ type: 'add', text: b[j] }); j += 1 }
+      return ops
+    }
+
+    function DiffTool({ t }) {
+      const [left, setLeft] = useState('')
+      const [right, setRight] = useState('')
+      const copyState = useCopy()
+      const ops = useMemo(() => (left === '' && right === '') ? [] : diffLines(left, right), [left, right])
+      const added = ops === null ? 0 : ops.filter(op => op.type === 'add').length
+      const removed = ops === null ? 0 : ops.filter(op => op.type === 'del').length
+      const text = ops === null ? '' : ops.map(op => (op.type === 'add' ? '+ ' : op.type === 'del' ? '- ' : '  ') + op.text).join('\n')
+
+      return h(Fragment, null,
+        h('div', { className: 'zct-grid2' },
+          h(Field, { label: t('diff.left') },
+            h(TextArea, {
+              value: left,
+              rows: 7,
+              spellCheck: false,
+              placeholder: t('diff.left'),
+              onChange: (event) => { setLeft(event.target.value) },
+            })),
+          h(Field, { label: t('diff.right') },
+            h(TextArea, {
+              value: right,
+              rows: 7,
+              spellCheck: false,
+              placeholder: t('diff.right'),
+              onChange: (event) => { setRight(event.target.value) },
+            }))),
+        ops === null ? h(ErrorLine, null, t('diff.tooLarge')) : null,
+        ops !== null && (left !== '' || right !== '') && added === 0 && removed === 0
+          ? h(HintLine, null, t('diff.identical'))
+          : null,
+        ops !== null && ops.length > 0
+          ? h(Fragment, null,
+            h('p', { className: 'zct-hint-line' }, '+' + added + ' · -' + removed),
+            h('div', { className: 'zct-code zct-diff' }, ops.map((op, index) =>
+              h('div', {
+                key: index,
+                className: op.type === 'add' ? 'zct-diff-add' : op.type === 'del' ? 'zct-diff-del' : 'zct-diff-same',
+              }, (op.type === 'add' ? '+ ' : op.type === 'del' ? '- ' : '  ') + op.text))),
+            h('div', { className: 'zct-actions' }, h(CopyButton, { id: 'diff-copy', text, copyState, t })))
+          : null)
+    }
+
 
     const TOOLS = [
-      { id: 'ascii', title: 'tool.ascii.title', desc: 'tool.ascii.desc', icon: AsciiIcon, Component: AsciiTool },
+      { id: 'json', title: 'tool.json.title', desc: 'tool.json.desc', icon: JsonIcon, Component: JsonTool },
       { id: 'encode', title: 'tool.encode.title', desc: 'tool.encode.desc', icon: EncodeIcon, Component: EncodingTool },
       { id: 'password', title: 'tool.password.title', desc: 'tool.password.desc', icon: PasswordIcon, Component: PasswordTool },
-      { id: 'json', title: 'tool.json.title', desc: 'tool.json.desc', icon: JsonIcon, Component: JsonTool },
-      { id: 'color', title: 'tool.color.title', desc: 'tool.color.desc', icon: ColorIcon, Component: ColorTool },
+      { id: 'regex', title: 'tool.regex.title', desc: 'tool.regex.desc', icon: RegexIcon, Component: RegexTool },
       { id: 'timestamp', title: 'tool.timestamp.title', desc: 'tool.timestamp.desc', icon: ClockIcon, Component: TimestampTool },
-      { id: 'uuid', title: 'tool.uuid.title', desc: 'tool.uuid.desc', icon: UuidIcon, Component: UuidTool },
+      { id: 'color', title: 'tool.color.title', desc: 'tool.color.desc', icon: ColorIcon, Component: ColorTool },
+      { id: 'ascii', title: 'tool.ascii.title', desc: 'tool.ascii.desc', icon: AsciiIcon, Component: AsciiTool },
       { id: 'hash', title: 'tool.hash.title', desc: 'tool.hash.desc', icon: HashIcon, Component: HashTool },
+      { id: 'uuid', title: 'tool.uuid.title', desc: 'tool.uuid.desc', icon: UuidIcon, Component: UuidTool },
+      { id: 'diff', title: 'tool.diff.title', desc: 'tool.diff.desc', icon: DiffIcon, Component: DiffTool },
+      { id: 'url', title: 'tool.url.title', desc: 'tool.url.desc', icon: UrlIcon, Component: UrlTool },
+      { id: 'text', title: 'tool.text.title', desc: 'tool.text.desc', icon: TextIcon, Component: TextTool },
+      { id: 'jwt', title: 'tool.jwt.title', desc: 'tool.jwt.desc', icon: JwtIcon, Component: JwtTool },
+      { id: 'cron', title: 'tool.cron.title', desc: 'tool.cron.desc', icon: CronIcon, Component: CronTool },
     ]
 
+    const TOOL_IDS = TOOLS.map(tool => tool.id)
+    const DEFAULT_PREFS = { sort: 'usage', visibleCount: 6, order: TOOL_IDS, usage: {} }
+
+    function normalizePrefs(raw) {
+      const source = raw !== null && typeof raw === 'object' ? raw : {}
+      const order = Array.isArray(source.order) ? source.order.filter(id => TOOL_IDS.includes(id)) : []
+      for (const id of TOOL_IDS) if (!order.includes(id)) order.push(id)
+      const usage = {}
+      if (source.usage !== null && typeof source.usage === 'object') {
+        for (const id of TOOL_IDS) {
+          const count = Number(source.usage[id])
+          if (Number.isFinite(count) && count > 0) usage[id] = Math.floor(count)
+        }
+      }
+      return {
+        sort: source.sort === 'manual' ? 'manual' : 'usage',
+        visibleCount: clamp(Number(source.visibleCount) || 6, 3, TOOLS.length),
+        order,
+        usage,
+      }
+    }
+
+    function loadPrefs() {
+      try {
+        if (typeof localStorage !== 'undefined') {
+          const raw = localStorage.getItem(PREFS_KEY)
+          if (raw !== null) return normalizePrefs(JSON.parse(raw))
+        }
+      } catch (error) {
+        /* malformed or blocked storage falls back to defaults */
+      }
+      return normalizePrefs(null)
+    }
+
+    function savePrefs(prefs) {
+      try {
+        if (typeof localStorage !== 'undefined') localStorage.setItem(PREFS_KEY, JSON.stringify(prefs))
+      } catch (error) {
+        /* preferences stay in memory when storage is unavailable */
+      }
+    }
+
+    function setPrefs(next) {
+      state.prefs = normalizePrefs(next)
+      savePrefs(state.prefs)
+      emit()
+    }
+
+    function recordUsage(id) {
+      if (!TOOL_IDS.includes(id)) return
+      const usage = { ...(state.prefs === undefined ? {} : state.prefs.usage) }
+      usage[id] = (usage[id] || 0) + 1
+      setPrefs({ ...state.prefs, usage })
+    }
+
+    function menuTools(prefs) {
+      const order = prefs.order
+      const sorted = prefs.sort === 'usage'
+        ? [...order].sort((a, b) => (prefs.usage[b] || 0) - (prefs.usage[a] || 0) || order.indexOf(a) - order.indexOf(b))
+        : order
+      return sorted.slice(0, prefs.visibleCount)
+        .map(id => TOOLS.find(tool => tool.id === id))
+        .filter(tool => tool !== undefined)
+    }
+
+    state.prefs = loadPrefs()
+
     const identity = (key) => key
+
+    function SettingsPane({ t }) {
+      const prefs = useStore((snapshot) => snapshot.prefs)
+      const move = (index, delta) => {
+        const target = index + delta
+        if (target < 0 || target >= prefs.order.length) return
+        const order = [...prefs.order]
+        const swap = order[index]
+        order[index] = order[target]
+        order[target] = swap
+        setPrefs({ ...prefs, order })
+      }
+      return h('div', { className: 'zct-settings' },
+        h('div', { className: 'zct-field' },
+          h('span', { className: 'zct-label' }, t('settings.sort')),
+          h(Segmented, {
+            options: [
+              { id: 'usage', label: t('settings.sortUsage') },
+              { id: 'manual', label: t('settings.sortManual') },
+            ],
+            value: prefs.sort,
+            onChange: (sort) => { setPrefs({ ...prefs, sort }) },
+          })),
+        h(Field, { label: t('settings.visible') + ': ' + prefs.visibleCount },
+          h('input', {
+            type: 'range',
+            className: 'zct-range',
+            min: 3,
+            max: TOOLS.length,
+            step: 1,
+            value: prefs.visibleCount,
+            onChange: (event) => { setPrefs({ ...prefs, visibleCount: Number(event.target.value) }) },
+          })),
+        h('p', { className: 'zct-hint-line' }, t('settings.hint')),
+        h('div', { className: 'zct-field' },
+          h('span', { className: 'zct-label' }, t('settings.order')),
+          h('div', { className: 'zct-order' },
+            prefs.order.map((id, index) => {
+              const tool = TOOLS.find(entry => entry.id === id)
+              if (tool === undefined) return null
+              const count = prefs.usage[id] || 0
+              return h('div', { className: 'zct-order-row', key: id },
+                h('span', { className: 'zct-tool-icon' }, h(tool.icon)),
+                h('span', { className: 'zct-order-name' }, t(tool.title)),
+                count > 0 ? h('span', { className: 'zct-order-count' }, count + ' ' + t('settings.uses')) : null,
+                h('button', {
+                  type: 'button',
+                  className: 'zct-icon-btn',
+                  'aria-label': t('settings.moveUp'),
+                  disabled: index === 0,
+                  onClick: () => { move(index, -1) },
+                }, '↑'),
+                h('button', {
+                  type: 'button',
+                  className: 'zct-icon-btn',
+                  'aria-label': t('settings.moveDown'),
+                  disabled: index === prefs.order.length - 1,
+                  onClick: () => { move(index, 1) },
+                }, '↓'))
+            }))),
+        h('div', { className: 'zct-actions' },
+          h(Btn, {
+            onClick: () => { setPrefs({ sort: DEFAULT_PREFS.sort, visibleCount: DEFAULT_PREFS.visibleCount, order: [...TOOL_IDS], usage: {} }) },
+          }, t('settings.reset'))))
+    }
+
+    const MENU_CSS = `
+.zct-menu{position:fixed;z-index:70;width:248px;max-width:calc(100vw - 16px);max-height:min(60vh,420px);overflow:auto;padding:6px;border:0.5px solid var(--dsw-alias-border-l1);border-radius:12px;background:var(--dsw-specific-menu,var(--dsw-alias-bg-overlay));backdrop-filter:var(--dsw-menu-backdrop-filter,blur(12px));box-shadow:var(--dsw-elevation-prominent,0 18px 48px rgba(0,0,0,.28));color:var(--dsw-alias-label-primary);font-size:13px;pointer-events:auto}
+.zct-menu-head{padding:6px 8px 4px;font-size:11px;color:var(--dsw-alias-label-tertiary);letter-spacing:.04em;text-transform:uppercase}
+.zct-menu-item{display:flex;align-items:center;gap:9px;width:100%;height:32px;padding:0 8px;border:none;border-radius:7px;background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:13px;text-align:left;cursor:pointer}
+.zct-menu-item:hover,.zct-menu-item:focus-visible{background:var(--dsw-alias-interactive-bg-hover,rgba(127,127,127,.12));color:var(--dsw-alias-label-primary);outline:none}
+.zct-menu-icon{display:flex;flex:none;color:var(--dsw-alias-label-tertiary)}
+.zct-menu-item:hover .zct-menu-icon,.zct-menu-item:focus-visible .zct-menu-icon{color:var(--dsw-alias-brand-primary)}
+.zct-menu-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.zct-menu-count{flex:none;font-size:11px;color:var(--dsw-alias-label-tertiary);font-variant-numeric:tabular-nums}
+.zct-menu-sep{height:1px;margin:5px 6px;background:var(--dsw-alias-border-l1)}
+`
 
     const CSS = `
 .zct-backdrop{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(9,12,18,.38);pointer-events:auto}
@@ -1393,6 +2253,7 @@ window.__ModuleLoader__.load({
 .zct-rail{flex:none;width:212px;display:flex;flex-direction:column;gap:8px;padding:12px;border-right:0.5px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-1);overflow:auto}
 .zct-rail-search{height:30px}
 .zct-rail-label{font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--dsw-alias-label-tertiary);padding:4px 4px 0}
+.zct-rail-sep{height:1px;margin:6px 4px;background:var(--dsw-alias-border-l1)}
 .zct-tool-list{display:flex;flex-direction:column;gap:2px}
 .zct-tool-item{display:flex;align-items:center;gap:9px;width:100%;height:34px;padding:0 9px;border:none;border-radius:8px;background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;text-align:left;cursor:pointer}
 .zct-tool-item:hover{background:var(--dsw-alias-interactive-bg-hover,rgba(127,127,127,.12))}
@@ -1436,6 +2297,17 @@ window.__ModuleLoader__.load({
 .zct-knob{position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:#fff;transition:transform .15s}
 .zct-switch-on .zct-knob{transform:translateX(12px)}
 .zct-grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 16px}
+.zct-stats{display:flex;flex-wrap:wrap;gap:8px 16px;padding:10px 12px;border:0.5px solid var(--dsw-alias-border-l1);border-radius:10px;background:var(--dsw-alias-bg-layer-1);font-size:12px;color:var(--dsw-alias-label-tertiary)}
+.zct-stat strong{color:var(--dsw-alias-label-primary);font-weight:600;font-variant-numeric:tabular-nums}
+.zct-settings{display:flex;flex-direction:column;gap:16px}
+.zct-order{display:flex;flex-direction:column;gap:2px;border:0.5px solid var(--dsw-alias-border-l1);border-radius:10px;background:var(--dsw-alias-bg-layer-1);padding:6px}
+.zct-order-row{display:flex;align-items:center;gap:9px;min-height:32px;padding:0 6px;border-radius:7px;font-size:12px}
+.zct-order-row:hover{background:var(--dsw-alias-interactive-bg-hover,rgba(127,127,127,.12))}
+.zct-order-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--dsw-alias-label-secondary)}
+.zct-order-count{flex:none;font-size:11px;color:var(--dsw-alias-label-tertiary);font-variant-numeric:tabular-nums}
+.zct-icon-btn{display:inline-flex;align-items:center;justify-content:center;flex:none;width:24px;height:24px;padding:0;border:0.5px solid var(--dsw-alias-border-l2);border-radius:6px;background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:12px;cursor:pointer}
+.zct-icon-btn:hover:not(:disabled){background:var(--dsw-alias-interactive-bg-hover,rgba(127,127,127,.12))}
+.zct-icon-btn:disabled{opacity:.35;cursor:default}
 .zct-card{display:flex;align-items:flex-start;gap:16px;padding:12px 14px;border:0.5px solid var(--dsw-alias-border-l1);border-radius:12px;background:var(--dsw-alias-bg-layer-1)}
 .zct-card-stack{flex-direction:column;align-items:stretch;gap:8px}
 .zct-glyph{flex:none;display:flex;align-items:center;justify-content:center;width:64px;height:64px;border-radius:12px;background:var(--dsw-alias-bg-overlay);border:0.5px solid var(--dsw-alias-border-l2);font-family:var(--dsh-font-family-code,ui-monospace,monospace);font-size:28px;color:var(--dsw-alias-label-primary)}
@@ -1464,7 +2336,18 @@ window.__ModuleLoader__.load({
 .zct-bar-on.zct-level-1{background:var(--dsw-alias-state-warn-primary)}
 .zct-bar-on.zct-level-2,.zct-bar-on.zct-level-3{background:var(--dsw-alias-state-success-primary)}
 .zct-range{width:100%;accent-color:var(--dsw-alias-brand-primary)}
-.zct-code{margin:0;padding:10px 12px;border-radius:10px;background:var(--dsw-alias-bg-layer-1);border:0.5px solid var(--dsw-alias-border-l1);font-family:var(--dsh-font-family-code,ui-monospace,monospace);font-size:12px;line-height:1.6;white-space:pre-wrap;word-break:break-all;color:var(--dsw-alias-label-primary)}
+.zct-code{margin:0;padding:10px 12px;border-radius:10px;background:var(--dsw-alias-bg-layer-1);border:0.5px solid var(--dsw-alias-border-l1);font-family:var(--dsh-font-family-code,ui-monospace,monospace);font-size:12px;line-height:1.6;white-space:pre-wrap;word-break:break-all;color:var(--dsw-alias-label-primary);max-height:32vh;overflow:auto}
+.zct-hit{background:var(--dsw-alias-brand-primary);color:var(--dsw-alias-label-on-color,#fff);border-radius:3px;padding:0 1px}
+.zct-match-list{display:flex;flex-direction:column;gap:4px;max-height:24vh;overflow:auto}
+.zct-match{display:flex;align-items:center;flex-wrap:wrap;gap:6px;font-size:12px;padding:4px 6px;border-radius:6px;background:var(--dsw-alias-bg-layer-1)}
+.zct-match-index{flex:none;color:var(--dsw-alias-label-tertiary);font-size:11px;font-variant-numeric:tabular-nums}
+.zct-match-value{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--dsh-font-family-code,ui-monospace,monospace)}
+.zct-match-groups{display:flex;flex-wrap:wrap;gap:4px;flex:none}
+.zct-chip-mini{height:20px;padding:0 6px;font-size:11px;cursor:default}
+.zct-diff{max-height:40vh}
+.zct-diff-add{color:var(--dsw-alias-state-success-primary);background:color-mix(in srgb,var(--dsw-alias-state-success-primary) 10%,transparent)}
+.zct-diff-del{color:var(--dsw-alias-state-error-primary);background:color-mix(in srgb,var(--dsw-alias-state-error-primary) 10%,transparent)}
+.zct-diff-same{color:var(--dsw-alias-label-secondary)}
 .zct-error{margin:0;color:var(--dsw-alias-state-error-primary);font-size:12px}
 .zct-hint-line{margin:0;color:var(--dsw-alias-label-tertiary);font-size:11px}
 .zct-color-line{display:flex;align-items:center;gap:10px}
@@ -1493,44 +2376,123 @@ window.__ModuleLoader__.load({
     function FooterAction(props) {
       const wide = props.wide === true
       const t = typeof props.t === 'function' ? props.t : identity
-      const open = useStore((snapshot) => snapshot.open)
+      const panelOpen = useStore((snapshot) => snapshot.open)
+      const prefs = useStore((snapshot) => snapshot.prefs)
       const [hover, setHover] = useState(false)
+      const [menuOpen, setMenuOpen] = useState(false)
+      const [anchor, setAnchor] = useState(null)
+      const buttonRef = useRef(null)
+      const menuRef = useRef(null)
       const label = t('action.label')
-      return h('button', {
+
+      useEffect(() => {
+        if (panelOpen) setMenuOpen(false)
+      }, [panelOpen])
+
+      useEffect(() => {
+        if (!menuOpen) return undefined
+        const button = buttonRef.current
+        if (button !== null) {
+          const rect = button.getBoundingClientRect()
+          const width = 248
+          setAnchor({
+            left: Math.max(8, Math.min(rect.left, window.innerWidth - width - 8)),
+            bottom: window.innerHeight - rect.top + 6,
+          })
+        }
+        const frame = window.requestAnimationFrame(() => {
+          const menu = menuRef.current
+          if (menu === null) return
+          const first = menu.querySelector('[role="menuitem"]')
+          if (first !== null) first.focus()
+        })
+        const onPointerDown = (event) => {
+          const menu = menuRef.current
+          const btn = buttonRef.current
+          const target = event.target
+          if (menu !== null && menu.contains(target)) return
+          if (btn !== null && btn.contains(target)) return
+          setMenuOpen(false)
+        }
+        const onKeyDown = (event) => {
+          if (event.key === 'Escape') {
+            event.preventDefault()
+            setMenuOpen(false)
+            if (buttonRef.current !== null) buttonRef.current.focus()
+            return
+          }
+          if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return
+          const menu = menuRef.current
+          if (menu === null || !menu.contains(document.activeElement)) return
+          const items = Array.from(menu.querySelectorAll('[role="menuitem"]'))
+          if (items.length === 0) return
+          event.preventDefault()
+          const index = items.indexOf(document.activeElement)
+          const next = event.key === 'ArrowDown'
+            ? items[(index + 1) % items.length]
+            : items[(index - 1 + items.length) % items.length]
+          next.focus()
+        }
+        document.addEventListener('pointerdown', onPointerDown, true)
+        document.addEventListener('keydown', onKeyDown, true)
+        return () => {
+          window.cancelAnimationFrame(frame)
+          document.removeEventListener('pointerdown', onPointerDown, true)
+          document.removeEventListener('keydown', onKeyDown, true)
+        }
+      }, [menuOpen])
+
+      const openFromMenu = (tab) => {
+        setMenuOpen(false)
+        openToolbox(tab)
+        if (buttonRef.current !== null) returnFocus = buttonRef.current
+      }
+
+      const menuItem = (tool) => h('button', {
+        key: tool.id,
         type: 'button',
-        className: 'zct-footer',
-        'aria-label': label,
-        'aria-keyshortcuts': HOTKEY_ARIA,
-        'aria-haspopup': 'dialog',
-        'aria-expanded': open,
-        title: t('action.title'),
-        onClick: open ? closeToolbox : openToolbox,
-        onPointerEnter: () => { setHover(true) },
-        onPointerLeave: () => { setHover(false) },
-        style: {
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: wide ? 'flex-start' : 'center',
-          gap: wide ? 8 : 0,
-          width: wide ? 'calc(100% + 4px)' : '36px',
-          height: wide ? '42px' : '36px',
-          margin: wide ? '0 -2px' : '0',
-          padding: wide ? '0 10px 0 8px' : '0',
-          boxSizing: 'border-box',
-          border: 'none',
-          borderRadius: wide ? '12px' : '50%',
-          background: hover || open ? 'var(--dsw-alias-interactive-bg-hover,rgba(127,127,127,.12))' : 'transparent',
-          color: 'var(--dsw-alias-label-primary)',
-          font: 'inherit',
-          fontSize: '14px',
-          lineHeight: '20px',
-          cursor: 'pointer',
-          flex: 'none',
-          overflow: 'hidden',
-        },
+        role: 'menuitem',
+        className: 'zct-menu-item',
+        onClick: () => { openFromMenu(tool.id) },
       },
-      h(ToolboxIcon, { size: 18 }),
-      wide
+      h('span', { className: 'zct-menu-icon' }, h(tool.icon)),
+      h('span', { className: 'zct-menu-name' }, t(tool.title)),
+      (prefs.usage[tool.id] || 0) > 0
+        ? h('span', { className: 'zct-menu-count' }, String(prefs.usage[tool.id]))
+        : null)
+
+      const menu = menuOpen && anchor !== null
+        ? h(Fragment, null,
+          h('style', { key: 'zct-menu-style' }, MENU_CSS),
+          h('div', {
+            ref: menuRef,
+            key: 'zct-menu',
+            className: 'zct-menu',
+            role: 'menu',
+            'aria-label': label,
+            style: { left: anchor.left, bottom: anchor.bottom },
+          },
+          h('div', { className: 'zct-menu-head' }, t('menu.title')),
+          menuTools(prefs).map(menuItem),
+          h('div', { className: 'zct-menu-sep' }),
+          h('button', {
+            type: 'button',
+            role: 'menuitem',
+            className: 'zct-menu-item',
+            onClick: () => {
+              if (state.tab === SETTINGS_ID) openFromMenu(TOOLS[0].id)
+              else openFromMenu()
+            },
+          }, h('span', { className: 'zct-menu-name' }, t('menu.all'))),
+          h('button', {
+            type: 'button',
+            role: 'menuitem',
+            className: 'zct-menu-item',
+            onClick: () => { openFromMenu(SETTINGS_ID) },
+          }, h('span', { className: 'zct-menu-name' }, t('menu.settings')))))
+        : null
+
+      const text = wide
         ? h('span', {
           style: {
             overflow: 'hidden',
@@ -1539,13 +2501,65 @@ window.__ModuleLoader__.load({
             minWidth: '0',
           },
         }, label)
-        : null)
+        : null
+
+      const chevron = wide
+        ? h('svg', {
+          width: 12,
+          height: 12,
+          viewBox: '0 0 24 24',
+          fill: 'none',
+          stroke: 'currentColor',
+          strokeWidth: 2,
+          strokeLinecap: 'round',
+          style: { marginLeft: 'auto', flex: 'none', opacity: 0.55, transform: menuOpen ? 'rotate(180deg)' : undefined },
+          'aria-hidden': 'true',
+        }, h('path', { d: 'm6 9 6 6 6-6' }))
+        : null
+
+      return h(Fragment, null,
+        h('button', {
+          ref: buttonRef,
+          type: 'button',
+          className: 'zct-footer',
+          'aria-label': label,
+          'aria-keyshortcuts': HOTKEY_ARIA,
+          'aria-haspopup': 'menu',
+          'aria-expanded': menuOpen,
+          title: t('action.title'),
+          onClick: () => { setMenuOpen(!menuOpen) },
+          onPointerEnter: () => { setHover(true) },
+          onPointerLeave: () => { setHover(false) },
+          style: {
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: wide ? 'flex-start' : 'center',
+            gap: wide ? 8 : 0,
+            width: wide ? 'calc(100% + 4px)' : '36px',
+            height: wide ? '42px' : '36px',
+            margin: wide ? '0 -2px' : '0',
+            padding: wide ? '0 10px 0 8px' : '0',
+            boxSizing: 'border-box',
+            border: 'none',
+            borderRadius: wide ? '12px' : '50%',
+            background: hover || menuOpen ? 'var(--dsw-alias-interactive-bg-hover,rgba(127,127,127,.12))' : 'transparent',
+            color: 'var(--dsw-alias-label-primary)',
+            font: 'inherit',
+            fontSize: '14px',
+            lineHeight: '20px',
+            cursor: 'pointer',
+            flex: 'none',
+            overflow: 'hidden',
+          },
+        }, h(ToolboxIcon, { size: 18 }), text, chevron),
+        menu)
     }
 
     function ToolboxOverlay(props) {
       const open = useStore((snapshot) => snapshot.open)
       const tab = useStore((snapshot) => snapshot.tab)
       const filter = useStore((snapshot) => snapshot.filter)
+      const prefs = useStore((snapshot) => snapshot.prefs)
       const t = typeof props.t === 'function' ? props.t : identity
       const dialogRef = useRef(null)
       const searchRef = useRef(null)
@@ -1590,17 +2604,30 @@ window.__ModuleLoader__.load({
 
       if (!open) return null
 
-      const current = TOOLS.find(tool => tool.id === tab) || TOOLS[0]
+      const settingsView = tab === SETTINGS_ID
+      const current = settingsView ? null : (TOOLS.find(tool => tool.id === tab) || TOOLS[0])
+      const visibleToolId = current === null ? SETTINGS_ID : current.id
       const query = filter.trim().toLowerCase()
-      const visible = TOOLS.filter(tool => query === ''
-        || t(tool.title).toLowerCase().includes(query)
-        || t(tool.desc).toLowerCase().includes(query)
-        || tool.id.includes(query))
+      const visible = prefs.order
+        .map(id => TOOLS.find(tool => tool.id === id))
+        .filter(tool => tool !== undefined)
+        .filter(tool => query === ''
+          || t(tool.title).toLowerCase().includes(query)
+          || t(tool.desc).toLowerCase().includes(query)
+          || tool.id.includes(query))
 
       const selectTab = (tool) => {
         setTab(tool.id)
         window.requestAnimationFrame(() => {
           const node = document.getElementById('zct-tab-' + tool.id)
+          if (node !== null) node.focus()
+        })
+      }
+
+      const selectSettings = () => {
+        setTab(SETTINGS_ID)
+        window.requestAnimationFrame(() => {
+          const node = document.getElementById('zct-tab-settings')
           if (node !== null) node.focus()
         })
       }
@@ -1671,22 +2698,35 @@ window.__ModuleLoader__.load({
                 type: 'button',
                 role: 'tab',
                 id: 'zct-tab-' + tool.id,
-                'aria-selected': tool.id === current.id,
+                'aria-selected': current !== null && tool.id === current.id,
                 'aria-controls': 'zct-panel-' + tool.id,
-                tabIndex: tool.id === current.id ? 0 : -1,
-                className: tool.id === current.id ? 'zct-tool-item zct-tool-item-active' : 'zct-tool-item',
+                tabIndex: current !== null && tool.id === current.id ? 0 : -1,
+                className: current !== null && tool.id === current.id ? 'zct-tool-item zct-tool-item-active' : 'zct-tool-item',
                 title: t(tool.title),
                 onClick: () => { setTab(tool.id) },
                 onKeyDown: (event) => { onTabKeyDown(event, tool) },
               },
               h('span', { className: 'zct-tool-icon' }, h(tool.icon)),
               h('span', { className: 'zct-tool-name' }, t(tool.title))))),
-            visible.length === 0 ? h('p', { className: 'zct-hint-line' }, t('panel.noMatch')) : null),
+            visible.length === 0 ? h('p', { className: 'zct-hint-line' }, t('panel.noMatch')) : null,
+            h('div', { className: 'zct-rail-sep' }),
+            h('button', {
+              type: 'button',
+              role: 'tab',
+              id: 'zct-tab-settings',
+              'aria-selected': settingsView,
+              'aria-controls': 'zct-panel-settings',
+              tabIndex: settingsView ? 0 : -1,
+              className: settingsView ? 'zct-tool-item zct-tool-item-active' : 'zct-tool-item',
+              onClick: selectSettings,
+            },
+            h('span', { className: 'zct-tool-icon' }, h(SettingsIcon)),
+            h('span', { className: 'zct-tool-name' }, t('settings.title')))),
 
           h('main', { className: 'zct-main' },
             h('div', { className: 'zct-main-head' },
-              h('h2', { className: 'zct-main-title' }, t(current.title)),
-              h('p', { className: 'zct-main-desc' }, t(current.desc))),
+              h('h2', { className: 'zct-main-title' }, settingsView ? t('settings.title') : t(current.title)),
+              h('p', { className: 'zct-main-desc' }, settingsView ? t('settings.desc') : t(current.desc))),
             h('div', { className: 'zct-pane' },
               TOOLS.map(tool => h('div', {
                 key: tool.id,
@@ -1694,8 +2734,15 @@ window.__ModuleLoader__.load({
                 role: 'tabpanel',
                 id: 'zct-panel-' + tool.id,
                 'aria-labelledby': 'zct-tab-' + tool.id,
-                hidden: tool.id !== current.id,
-              }, h(tool.Component, { t })))))),
+                hidden: tool.id !== visibleToolId,
+              }, h(tool.Component, { t }))),
+              h('div', {
+                className: 'zct-tool-panel',
+                role: 'tabpanel',
+                id: 'zct-panel-settings',
+                'aria-labelledby': 'zct-tab-settings',
+                hidden: !settingsView,
+              }, h(SettingsPane, { t }))))),
 
         h('footer', { className: 'zct-foot' },
           h('span', null, h('span', { className: 'zct-kbd' }, 'Esc'), ' ' + t('panel.esc')),

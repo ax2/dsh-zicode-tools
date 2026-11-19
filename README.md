@@ -1,47 +1,57 @@
-# 字码工具箱 · dsh-zicode-tools
+# 开发工具箱 · dsh-zicode-tools
 
-给开发者用的 DSH 小工具集合：ASCII 码表、编码转换、密码生成、JSON 美化、颜色转换、时间戳、UUID、SHA 哈希。
+给开发者用的 DSH 工具集合：入口是左侧栏底部的「开发工具箱」菜单，二级菜单直接列出常用工具；完整面板里有 14 个工具。全部在浏览器本地计算，不联网、不写会话、不改任何 DSH 配置。
 
-全部在浏览器本地计算，不联网、不写会话、不改任何 DSH 配置。
-
-## 入口在哪
+## 入口与二级菜单
 
 | 入口 | 位置 | 说明 |
 | --- | --- | --- |
-| 侧栏按钮 | 左侧栏底部、**设置**按钮正上方 | 常驻，不需要打开会话；侧栏收起时显示为图标 |
-| 快捷键 | 默认 `Alt+Shift+Z`（Web 版默认 `Ctrl+Alt+Z`） | 在 **设置 → 快捷键** 里可改；`Esc` 或点击遮罩关闭 |
+| 「开发工具箱」菜单 | 左侧栏底部、**设置**按钮正上方 | 点开是二级菜单，直接列出常用工具；侧栏收起时显示为图标 |
+| 菜单底部 | 菜单内 | 「全部工具…」打开完整面板；「菜单设置…」打开排序/数量设置 |
+| 快捷键 | 默认 `Alt+Shift+Z`（Web 版 `Ctrl+Alt+Z`） | 打开完整面板；在 **设置 → 快捷键** 里可改 |
 
-打开后是一个居中浮层：左侧 8 个工具，右侧是当前工具面板。工具面板顶部有搜索框，可按名称或描述过滤。
+**二级菜单规则**
 
-> 设计理由：`sidebar.footer.action` 是根级常驻槽位，和「设置」同级，任何页面都能点到；浮层放在 `shell.overlay`（框架级浮层），不会被侧栏或对话区的 `overflow` 裁切。没有塞进输入框工具条，是因为这些工具和「正在写的这条消息」无关，塞进去会挤占发送按钮附近的空间。
+- 默认显示 **6 个**工具，可在「菜单设置」里改成 3–14 个。
+- 排序默认「常用优先」：按你打开该工具的次数从多到少，次数相同按手动顺序。
+- 也可切到「手动排序」，用 ↑/↓ 调整全部 14 个工具的顺序；侧栏面板的工具列表同步使用这个手动顺序。
+- 使用次数与排序保存在浏览器本地（`localStorage`，键 `dsh-zicode-tools:prefs`），不经过 Host。
 
-## 工具
+设计理由：`sidebar.footer.action` 是根级常驻槽位，不依赖会话，和「设置」同级；二级菜单在一个 248px 的浮层里，不会被侧栏 `overflow` 裁切；完整面板放在 `shell.overlay`，需要时再看全部工具。
+
+## 工具（14 个）
 
 | 工具 | 能力 |
 | --- | --- |
-| **ASCII 码表** | 0–127 的 DEC / HEX / OCT / BIN / 字符 / 名称表；输入字符、十进制或 `0x41` 直接查；任意字符可看 Unicode 码点；点击行复制 |
-| **编码转换** | Base64（含 URL-safe）、URL 编码、HTML 实体、Unicode 转义、UTF-8 十六进制，双向转换 |
-| **密码生成** | 长度 4–64，大写/小写/数字/符号任选，排除 `Il1O0o`；基于 `crypto.getRandomValues` 的无偏随机；实时熵值与强度 |
 | **JSON** | 格式化（2/4 空格、Tab）、压缩、校验、键排序；出错给出行列位置 |
+| **编码转换** | Base64（含 URL-safe）、URL 编码、HTML 实体、Unicode 转义、UTF-8 十六进制，双向转换 |
+| **密码生成** | 长度 4–64，大写/小写/数字/符号任选，排除 `Il1O0o`；`crypto.getRandomValues` 无偏随机；实时熵值与强度 |
+| **正则测试** | 模式 + g/i/m/s/u 标志、实时高亮、匹配位置与捕获组、替换预览 |
+| **时间戳** | 实时秒/毫秒/本地/UTC/ISO；时间戳 ↔ 日期双向转换 |
 | **颜色** | HEX / RGB / HSL 互转，支持 `#rgb`、`#rrggbb(aa)`、`rgb()`、`rgba()`、`hsl()`、`hsla()` 与常用颜色名；取色器与透明色块预览 |
-| **时间戳** | 实时显示当前秒/毫秒/本地/UTC/ISO；时间戳 ↔ 日期双向转换 |
-| **UUID** | 批量生成 v4 UUID（1–50 个），可大写、可去短横线，单个或全部复制 |
+| **ASCII 码表** | 0–127 的 DEC/HEX/OCT/BIN/字符/名称；输入字符、十进制或 `0x41` 直接查；方向键浏览、回车复制 |
 | **哈希** | SHA-1 / SHA-256 / SHA-384 / SHA-512，输出十六进制与 Base64 |
+| **UUID** | 批量生成 v4 UUID（1–50 个），可大写、可去短横线 |
+| **文本对比** | 逐行 LCS diff，标出新增/删除，复制统一格式结果 |
+| **URL 解析** | 拆分协议/主机/端口/路径/查询串/锚点，解码查询参数，复制为 JSON |
+| **文本工具** | 字符、UTF-8 字节、词、行、中文数统计；大小写与 camel/snake/kebab/CONSTANT 命名转换 |
+| **JWT 解码** | 解码 header/payload，显示 exp/iat/nbf；不校验签名 |
+| **Cron 解析** | 五段式 Cron 解析 + 接下来 5 次运行时间（处理 DOM/DOW 的 OR 语义） |
 
 ## 安装
 
 ### 桌面版
 
 1. 左侧栏 **插件** → **Add plugin**
-2. 选择本目录 `dsh-zicode-tools`（本地目录安装会链接源码，改完重启宿主即可生效）
+2. 选择本目录 `dsh-zicode-tools`（本地目录安装会链接源码，改完重启/刷新即可生效）
 
 ### 命令行
 
 ```sh
 dsh plugin --profile <profile> add link:/绝对路径/dsh-zicode-tools
+# 或从 GitHub
+dsh plugin --profile <profile> add github:ax2/dsh-zicode-tools
 ```
-
-发布到 npm / GitHub 后也可以直接按包名或仓库地址安装。
 
 ## 实现说明
 
@@ -50,43 +60,45 @@ dsh-zicode-tools/
 ├── package.json        # dsh.bundle.patch + dsh.client（Web 平台、启动即预取）
 ├── cordis.patch.yml    # 插入 zicode-tools 一行
 ├── index.js            # Host 半边：空实现，仅保持插件行存活
-├── client.js           # 浏览器半边：两个槽位 + 8 个工具
+├── client.js           # 浏览器半边：槽位、二级菜单、设置、14 个工具
 ├── locale/en.json      # 插件管理器展示用的英文元数据
 ├── locale/zh.json      # 中文元数据
 ├── icon.svg            # 插件图标
-└── docs/               # 详情页插图
+├── docs/               # 详情页插图
+└── test/smoke.mjs      # 集成冒烟测试（不模拟浏览器）
 ```
 
-- 槽位注册：`sidebar.footer.action`（按钮）与 `shell.overlay`（浮层），都通过 `ctx.slots.inject` + `ctx.slots.register` 完成，随插件卸载自动清理。
-- 快捷键通过 `ctx.shortcuts.register` 注册，会出现在「设置 → 快捷键」里，冲突由宿主检查，用户可改键。
-- 文案走 `ctx.locale` 命名空间 `zicode-tools`，内置中英文；其余语言回退到英文。
-- 样式只用 `--dsw-alias-*` 主题变量，浅色/深色跟随宿主。
-- 不 import 任何 DSH Client 包，也不操作其他插件的 DOM。
+- 槽位：`sidebar.footer.action`（菜单按钮）与 `shell.overlay`（完整面板），通过 `ctx.slots.inject` + `ctx.slots.register` 注册，随插件卸载自动清理。
+- 二级菜单：自绘 `role="menu"` 浮层（固定定位、测量锚点），支持 ↑/↓/Enter/Esc、点击外部关闭、焦点归位。
+- 快捷键通过 `ctx.shortcuts.register` 注册，出现在「设置 → 快捷键」，冲突由宿主检查。
+- 文案走 `ctx.locale` 命名空间 `zicode-tools`，内置中英文；其余语言回退英文。
+- 样式只用 `--dsw-alias-*` / `--dsh-font-family-code` 主题变量，浅色/深色跟随宿主；不 import 任何 DSH Client 包，也不操作其他插件的 DOM。
 
 ## 兼容性
 
 - 在 DeepSeek Harness `0.2.2-rc.5`（Desktop profile）上验证。
-- 哈希与随机数依赖 `crypto.subtle` / `crypto.getRandomValues`；`http://127.0.0.1` 属于安全上下文，正常可用。
+- 哈希、随机数、UUID 依赖 `crypto.subtle` / `crypto.getRandomValues`；`http://127.0.0.1` 属于安全上下文，正常可用。
 
 ## 已知限制
 
 - ASCII 表固定 0–127；128 以上字符在查询卡里按 Unicode 码点显示。
 - HTML 实体解码覆盖常用命名实体与全部数字实体，不覆盖 HTML5 的完整实体表。
 - 复制依赖 `navigator.clipboard`（安全上下文）。
-- 部分平台把折叠侧栏收成 0 宽时，侧栏底部按钮不可见；此时用快捷键打开。
+- 部分平台把折叠侧栏收成 0 宽时，侧栏菜单不可见；此时用快捷键打开完整面板。
+- 面板页头显示的快捷键为默认值；改键后在「设置 → 快捷键」查看实际绑定。
 
 ## 开发自检
 
 ```sh
 npm run check   # 语法检查
-npm test        # 集成冒烟测试：加载模块、执行 apply、渲染 8 个工具
+npm test        # 集成冒烟测试：加载模块、执行 apply、渲染 14 个工具与设置页
 ```
 
-`test/smoke.mjs` 用最小 React 桩执行客户端模块并检查槽位注册、快捷键、中英词典一致性与每个工具的默认渲染，不模拟浏览器，也不替代真机视觉验证。
+`test/smoke.mjs` 用最小 React 桩执行客户端模块，检查槽位注册、快捷键、中英词典一致性、14 个工具与菜单设置的默认渲染，不模拟浏览器，也不替代真机视觉验证。
 
 ## English
 
-A local-only developer toolbox for DeepSeek Harness. The launcher sits at the sidebar foot, directly above Settings, and the same panel opens with `Alt+Shift+Z` (desktop) or `Ctrl+Alt+Z` (web); both are editable under Settings → Shortcuts. It ships an ASCII table, Base64/URL/HTML/Unicode/hex conversion, a crypto-random password generator, JSON formatting and validation, HEX/RGB/HSL conversion, timestamps, UUID batches, and SHA digests. Everything runs in the page; nothing is sent anywhere or read from the session.
+A local-only developer toolbox for DeepSeek Harness. The sidebar-foot **Developer toolbox** menu opens a second-level list of your most-used tools (6 by default, adjustable, ordered by usage or manually); **All tools…** opens the full 14-tool panel, also reachable with `Alt+Shift+Z` (desktop) or `Ctrl+Alt+Z` (web). Tools: JSON, encoding, password generator, regex tester, timestamps, color, ASCII, hashes, UUID, text diff, URL parser, text tools, JWT decoder and cron parser. Everything runs in the page; nothing is sent anywhere or read from the session.
 
 ## License
 

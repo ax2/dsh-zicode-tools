@@ -1,7 +1,7 @@
 {
   "name": "dsh-zicode-tools",
-  "version": "0.1.0",
-  "description": "Offline developer toolbox for DeepSeek Harness: ASCII table, encoding conversion, password generator, JSON formatter, color converter, timestamp, UUID and SHA hash.",
+  "version": "0.2.0",
+  "description": "Developer toolbox for DeepSeek Harness: a sidebar menu plus a 14-tool panel (JSON, encoding, password, regex, timestamp, color, ASCII, hashes, UUID, diff, URL, text, JWT, cron) that runs entirely in the browser.",
   "type": "module",
   "license": "MIT",
   "author": "ax2",
