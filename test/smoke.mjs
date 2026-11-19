@@ -136,24 +136,33 @@ const openOverlay = () => {
 }
 
 const tabs = findAll(openOverlay(), (node) => node.props.role === 'tab')
-if (tabs.length !== 15) throw new Error('expected 14 tool tabs plus settings, got ' + tabs.length)
+if (tabs.length !== 16) throw new Error('expected 14 tool tabs plus settings and about, got ' + tabs.length)
 
 const firstTree = openOverlay()
 const dialog = findAll(firstTree, (node) => node.props.role === 'dialog')[0]
 if (dialog.props['data-shortcut-modal'] !== 'zicode-tools') throw new Error('dialog does not own shortcut modality')
 
 const panels = findAll(firstTree, (node) => node.props.className === 'zct-tool-panel')
-if (panels.length !== 15) throw new Error('expected 14 tool panels plus settings, got ' + panels.length)
-if (panels.filter((panel) => panel.props.hidden === true).length !== 14) throw new Error('exactly one panel should be visible')
+if (panels.length !== 16) throw new Error('expected 14 tool panels plus settings and about, got ' + panels.length)
+if (panels.filter((panel) => panel.props.hidden === true).length !== 15) throw new Error('exactly one panel should be visible')
 
 const toolNodes = findAll(firstTree, (node) => typeof node.type === 'function' && node.props.t === t)
-if (toolNodes.length !== 15) throw new Error('expected 14 tools plus the settings pane, got ' + toolNodes.length)
+if (toolNodes.length !== 16) throw new Error('expected 14 tools plus settings and about panes, got ' + toolNodes.length)
 for (const node of toolNodes) {
   const toolTree = node.type(node.props)
   if (toolTree === null) throw new Error('tool rendered nothing')
   const size = findAll(toolTree, () => true).length
   if (size < 3) throw new Error('tool tree suspiciously small: ' + node.type.name + ' (' + size + ')')
 }
+
+const aboutNode = toolNodes.find((node) => node.type.name === 'AboutPane')
+if (aboutNode === undefined) throw new Error('about pane missing')
+const aboutTree = aboutNode.type(aboutNode.props)
+const aboutImage = findAll(aboutTree, (node) => node.type === 'img')[0]
+if (aboutImage === undefined || !String(aboutImage.props.src).startsWith('data:image/jpeg;base64,')) {
+  throw new Error('about pane is missing the bundled WeChat QR')
+}
+if (!aboutTree.props.className.includes('zct-about')) throw new Error('about pane markup wrong')
 
 const asciiNode = toolNodes.find((node) => node.type.name === 'AsciiTool')
 if (asciiNode === undefined) throw new Error('ASCII tool missing')

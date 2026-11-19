@@ -1,13 +1,14 @@
-# 开发工具箱 · dsh-zicode-tools
+# zicode 开发工具箱 · dsh-zicode-tools
 
-给开发者用的 DSH 工具集合：入口是左侧栏底部的「开发工具箱」菜单，二级菜单直接列出常用工具；完整面板里有 14 个工具。全部在浏览器本地计算，不联网、不写会话、不改任何 DSH 配置。
+给开发者用的 DSH 工具集合：入口是左侧栏底部的「开发工具箱」菜单，菜单内显示 **zicode 开发工具箱**，二级菜单直接列出常用工具；完整面板里有 14 个工具、官网与公众号二维码。全部在浏览器本地计算，不联网、不写会话、不改任何 DSH 配置。
 
 ## 入口与二级菜单
 
 | 入口 | 位置 | 说明 |
 | --- | --- | --- |
-| 「开发工具箱」菜单 | 左侧栏底部、**设置**按钮正上方 | 点开是二级菜单，直接列出常用工具；侧栏收起时显示为图标 |
-| 菜单底部 | 菜单内 | 「全部工具…」打开完整面板；「菜单设置…」打开排序/数量设置 |
+| 「开发工具箱」菜单 | 左侧栏底部、**设置**按钮正上方 | 点开是二级菜单（标题「zicode 开发工具箱」），直接列出常用工具；侧栏收起时显示为图标 |
+| 菜单底部 | 菜单内 | 「全部工具…」「菜单设置…」「关于 zicode…」 |
+| 完整面板页脚 | 面板底部 | 显示 **www.zicode.com** 链接与公众号二维码缩略图，点二维码进入「关于 zicode」 |
 | 快捷键 | 默认 `Alt+Shift+Z`（Web 版 `Ctrl+Alt+Z`） | 打开完整面板；在 **设置 → 快捷键** 里可改 |
 
 **二级菜单规则**
@@ -18,6 +19,14 @@
 - 使用次数与排序保存在浏览器本地（`localStorage`，键 `dsh-zicode-tools:prefs`），不经过 Host。
 
 设计理由：`sidebar.footer.action` 是根级常驻槽位，不依赖会话，和「设置」同级；二级菜单在一个 248px 的浮层里，不会被侧栏 `overflow` 裁切；完整面板放在 `shell.overlay`，需要时再看全部工具。
+
+## 品牌与官网
+
+- 菜单标题、完整面板标题与插件详情页标题都显示 **zicode 开发工具箱**。
+- 完整面板页脚常驻显示 **www.zicode.com** 与公众号二维码缩略图；点二维码或「公众号」进入 **关于 zicode** 页。
+- 「关于 zicode」页包含：版本、官网链接与复制、软件模块入口、180px 公众号二维码（可直接扫码关注「字与码」），以及“软件模块入口与 DSH 插件落地页将在这里上线”的说明。
+- 二维码原图来自 `https://zicode.com/qrcode_zicode.jpg`，以内嵌 data URL 形式随插件分发，离线可用；原图也随包保留在 [assets/qrcode_zicode.jpg](dsh-zicode-tools/assets/qrcode_zicode.jpg) 以便替换。
+- 后续在 www.zicode.com 软件模块上线入口/落地页后，只需改 `client.js` 顶部的 `BRAND_HOME` / `BRAND_SOFTWARE` 两个常量。
 
 ## 工具（14 个）
 
@@ -65,6 +74,7 @@ dsh-zicode-tools/
 ├── locale/zh.json      # 中文元数据
 ├── icon.svg            # 插件图标
 ├── docs/               # 详情页插图
+├── assets/             # 公众号二维码原图（运行时用内嵌 data URL）
 └── test/smoke.mjs      # 集成冒烟测试（不模拟浏览器）
 ```
 
@@ -98,7 +108,7 @@ npm test        # 集成冒烟测试：加载模块、执行 apply、渲染 14 �
 
 ## English
 
-A local-only developer toolbox for DeepSeek Harness. The sidebar-foot **Developer toolbox** menu opens a second-level list of your most-used tools (6 by default, adjustable, ordered by usage or manually); **All tools…** opens the full 14-tool panel, also reachable with `Alt+Shift+Z` (desktop) or `Ctrl+Alt+Z` (web). Tools: JSON, encoding, password generator, regex tester, timestamps, color, ASCII, hashes, UUID, text diff, URL parser, text tools, JWT decoder and cron parser. Everything runs in the page; nothing is sent anywhere or read from the session.
+A local-only developer toolbox for DeepSeek Harness. The sidebar-foot **Developer toolbox** menu opens a second-level list of your most-used tools (6 by default, adjustable, ordered by usage or manually); **All tools…** opens the full 14-tool panel, also reachable with `Alt+Shift+Z` (desktop) or `Ctrl+Alt+Z` (web). The panel footer shows www.zicode.com and the WeChat official-account QR, with an About zicode page. Tools: JSON, encoding, password generator, regex tester, timestamps, color, ASCII, hashes, UUID, text diff, URL parser, text tools, JWT decoder and cron parser. Everything runs in the page; nothing is sent anywhere or read from the session.
 
 ## License
 

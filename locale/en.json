@@ -1,7 +1,7 @@
 {
   "meta": {
-    "title": "Developer toolbox",
-    "description": "Developer utilities as a sidebar-foot Developer toolbox menu: open the submenu for the most-used tools (count adjustable, ordered by usage), or press Alt+Shift+Z (Ctrl+Alt+Z on web) for the full panel. Fourteen tools: JSON, encoding, password generator, regex tester, timestamps, color, ASCII, hashes, UUID, text diff, URL parser, text tools, JWT decoder and cron parser. Everything is computed locally in the browser; nothing is sent over the network or read from the session.",
+    "title": "zicode Developer toolbox",
+    "description": "The zicode developer toolbox: a sidebar-foot menu that opens a second-level list of your most-used tools (6 by default, adjustable, ordered by usage or manually), plus a full 14-tool panel with an About zicode page and www.zicode.com plus the WeChat official-account QR in the footer. Tools: JSON, encoding, password generator, regex tester, timestamps, color, ASCII, hashes, UUID, text diff, URL parser, text tools, JWT decoder and cron parser. Everything runs locally in the browser; nothing is sent over the network or read from the session.",
     "detail": "docs/DETAIL.md"
   }
 }
