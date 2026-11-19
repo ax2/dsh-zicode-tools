@@ -1,6 +1,6 @@
 {
   "name": "dsh-zicode-tools",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Developer toolbox for DeepSeek Harness: a sidebar menu plus a 14-tool panel (JSON, encoding, password, regex, timestamp, color, ASCII, hashes, UUID, diff, URL, text, JWT, cron) that runs entirely in the browser.",
   "type": "module",
   "license": "MIT",

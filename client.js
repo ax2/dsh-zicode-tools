@@ -28,7 +28,7 @@ window.__ModuleLoader__.load({
     const BRAND_HOME = 'https://www.zicode.com'
     const BRAND_SOFTWARE = 'https://www.zicode.com/software/'
     const BRAND_SITE_LABEL = 'www.zicode.com'
-    const VERSION = '0.3.1'
+    const VERSION = '0.3.2'
 
     /* --------------------------------------------------------------- locale */
 
@@ -711,6 +711,12 @@ window.__ModuleLoader__.load({
       h('path', { key: 'i', d: 'M12 11v5' }),
       h('path', { key: 'd', d: 'M12 7.8h.01' }),
     ])
+    const GridIcon = () => icon([
+      h('rect', { key: 'a', x: 4, y: 4, width: 6.5, height: 6.5, rx: 1.5 }),
+      h('rect', { key: 'b', x: 13.5, y: 4, width: 6.5, height: 6.5, rx: 1.5 }),
+      h('rect', { key: 'c', x: 4, y: 13.5, width: 6.5, height: 6.5, rx: 1.5 }),
+      h('rect', { key: 'd', x: 13.5, y: 13.5, width: 6.5, height: 6.5, rx: 1.5 }),
+    ])
 
     /* ----------------------------------------------------------------- ascii */
 
@@ -1103,8 +1109,8 @@ window.__ModuleLoader__.load({
         h('div', { className: 'zct-password-card' },
           h('code', { className: 'zct-password' }, generated.password === '' ? t('password.noSets') : generated.password),
           h('div', { className: 'zct-actions' },
-            h(CopyButton, { id: 'password', text: generated.password, copyState, t, primary: true }),
-            h(Btn, { onClick: () => { setNonce(nonce + 1) } }, t('common.generate')))),
+            h(CopyButton, { id: 'password', text: generated.password, copyState, t }),
+            h(Btn, { primary: true, onClick: () => { setNonce(nonce + 1) } }, t('common.generate')))),
         h('div', { className: 'zct-strength' },
           h('span', { className: 'zct-strength-bars', 'aria-hidden': 'true' },
             [0, 1, 2, 3].map(index => h('span', {
@@ -2588,19 +2594,25 @@ window.__ModuleLoader__.load({
               if (state.tab === SETTINGS_ID) openFromMenu(TOOLS[0].id)
               else openFromMenu()
             },
-          }, h('span', { className: 'zct-menu-name' }, t('menu.all'))),
+          },
+          h('span', { className: 'zct-menu-icon' }, h(GridIcon)),
+          h('span', { className: 'zct-menu-name' }, t('menu.all'))),
           h('button', {
             type: 'button',
             role: 'menuitem',
             className: 'zct-menu-item',
             onClick: () => { openFromMenu(SETTINGS_ID) },
-          }, h('span', { className: 'zct-menu-name' }, t('menu.settings'))),
+          },
+          h('span', { className: 'zct-menu-icon' }, h(SettingsIcon)),
+          h('span', { className: 'zct-menu-name' }, t('menu.settings'))),
           h('button', {
             type: 'button',
             role: 'menuitem',
             className: 'zct-menu-item',
             onClick: () => { openFromMenu(ABOUT_ID) },
-          }, h('span', { className: 'zct-menu-name' }, t('menu.about')))))
+          },
+          h('span', { className: 'zct-menu-icon' }, h(InfoIcon)),
+          h('span', { className: 'zct-menu-name' }, t('menu.about')))))
         : null
 
       const text = wide

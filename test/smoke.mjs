@@ -179,6 +179,24 @@ if (aboutImage === undefined || !String(aboutImage.props.src).startsWith('data:i
 }
 if (!aboutTree.props.className.includes('zct-about')) throw new Error('about pane markup wrong')
 
+const isPrimary = (node) => (typeof node.props.className === 'string'
+  && node.props.className.split(' ').includes('zct-btn-primary'))
+  || (typeof node.type === 'function' && node.type.name === 'Btn' && node.props.primary === true)
+const primaryCount = {}
+for (const node of toolNodes) {
+  const toolTree = node.type(node.props)
+  primaryCount[node.type.name] = findAll(toolTree, isPrimary).length
+}
+for (const name of ['JsonTool', 'EncodingTool', 'PasswordTool', 'UuidTool', 'CronTool']) {
+  if (primaryCount[name] !== 1) throw new Error(name + ' should have exactly one primary action, got ' + primaryCount[name])
+}
+for (const name of ['RegexTool', 'TimestampTool', 'ColorTool', 'AsciiTool', 'HashTool', 'DiffTool', 'UrlTool', 'TextTool', 'JwtTool', 'SettingsPane', 'AboutPane']) {
+  if (primaryCount[name] !== 0) throw new Error(name + ' should not have a primary action, got ' + primaryCount[name])
+}
+const passwordTree = toolNodes.find((node) => node.type.name === 'PasswordTool').type(toolNodes.find((node) => node.type.name === 'PasswordTool').props)
+const passwordPrimary = findAll(passwordTree, isPrimary)[0]
+if (!passwordPrimary.children.includes(t('common.generate'))) throw new Error('the generate action should be the filled primary button')
+
 const asciiNode = toolNodes.find((node) => node.type.name === 'AsciiTool')
 if (asciiNode === undefined) throw new Error('ASCII tool missing')
 const asciiTree = asciiNode.type(asciiNode.props)
